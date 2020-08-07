@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="bmw.ximalaya.testauto.shared">
+
+    <!--连接网络-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--用于管理监听网络状态的变化-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!--用于管理监听网络状态的变化-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!--用于管理监听网络状态的变化-->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <!--获取电话的状态,在打电话的时候暂停播放-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--target >=28 需要设置此权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <application>
+        <activity android:name=".SettingActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+        <!--
+ Main music service, provides media browsing and media playback services to
+         consumers through MediaBrowserService and MediaSession. Consumers connect to it through
+         MediaBrowser (for browsing) and MediaController (for playback control)
+        -->
+        <service
+            android:name=".MyMusicService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.ximalaya.ting.android.opensdk.player.service.XmPlayerService"
+            android:process=":player" />
+    </application>
+
+</manifest>
