@@ -1,4 +1,0 @@
-rootProject.name='TingYuAuto'
-include ':mobile'
-include ':automotive'
-include ':shared'
