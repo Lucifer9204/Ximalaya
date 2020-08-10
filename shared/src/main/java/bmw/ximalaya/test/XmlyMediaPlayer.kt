@@ -48,7 +48,7 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
 //        mXimalaya.mNoSupportHttps.add("http://adse.ximalaya.com")
 
         val config: Config = Config()
-        config.useProxy = true // 若想使用代理，必须配置此项为true，否则代理配置被忽略
+        config.useProxy = false // 若想使用代理，必须配置此项为true，否则代理配置被忽略
 
         config.proxyHost = "172.30.50.10"
         config.proxyPort = 8080
@@ -65,25 +65,25 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
         ConstantsOpenSdk.isDebug = true
 
         getCategories().whenComplete { t, u ->
-            LijhLog.e("getCategories(${t})")
+            NeuLog.e("getCategories(${t})")
             if (t != null){
                 categories = t.categories
 
                 categories?.filter{
-                    LijhLog.e("categories(${it.categoryName})")
+                    NeuLog.e("categories(${it.categoryName})")
                     it.categoryName == "音乐"
                 }?.getOrNull(0)?.let {
                     getAlbumList("${it.id}").whenComplete { t, u ->
-                        LijhLog.e("getAlbumList(${t})")
+                        NeuLog.e("getAlbumList(${t})")
                         if(t !=null){
                             albums = t.albums
                             albums?.filter{
-                                LijhLog.e("albums(${it.albumTitle})")
+                                NeuLog.e("albums(${it.albumTitle})")
                                 it.albumTitle == "经典老歌"
                             }?.getOrNull(0)?.let {
-                                LijhLog.e(it.albumTitle)
+                                NeuLog.e(it.albumTitle)
                                 getTracks("${it.id}").whenComplete { t,u ->
-                                    LijhLog.e("getTracks($t)")
+                                    NeuLog.e("getTracks($t)")
                                     mXmPlayerManager.playList(t.tracks,0)
                                 }
                             }
@@ -145,80 +145,80 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
     }
 
     override fun onPlayStart() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onSoundSwitch(p0: PlayableModel?, p1: PlayableModel?) {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onPlayProgress(p0: Int, p1: Int) {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onPlayPause() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onBufferProgress(p0: Int) {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onPlayStop() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onBufferingStart() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onSoundPlayComplete() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onError(p0: XmPlayerException?): Boolean {
-        LijhLog.e("($p0)")
+        NeuLog.e("($p0)")
 //        mXmPlayerManager.playNext()
         return true
     }
 
     override fun onSoundPrepared() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onBufferingStop() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onAdsStartBuffering() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onAdsStopBuffering() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onStartPlayAds(p0: Advertis?, p1: Int) {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onStartGetAdsInfo() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onGetAdsInfo(p0: AdvertisList?) {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onCompletePlayAds() {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onError(p0: Int, p1: Int) {
-        LijhLog.e()
+        NeuLog.e()
     }
 
     override fun onConnected() {
-        LijhLog.e()
+        NeuLog.e()
     }
 }

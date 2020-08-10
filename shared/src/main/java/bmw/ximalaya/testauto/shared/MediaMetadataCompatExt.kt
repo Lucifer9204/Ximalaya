@@ -18,6 +18,7 @@ package bmw.ximalaya.testauto.shared
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 
@@ -111,6 +112,9 @@ inline val MediaMetadataCompat.mediaUri: Uri
 inline val MediaMetadataCompat.downloadStatus
     get() = getLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS)
 
+@MediaBrowserCompat.MediaItem.Flags
+inline val MediaMetadataCompat.flag
+    get() = this.getLong(METADATA_KEY_TINGYU_FLAGS).toInt()
 
 /**
  * Useful extensions for [MediaMetadataCompat.Builder].
@@ -230,6 +234,13 @@ inline var MediaMetadataCompat.Builder.downloadStatus: Long
     set(value) {
         putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
     }
+@MediaBrowserCompat.MediaItem.Flags
+inline var MediaMetadataCompat.Builder.flag: Int
+    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
+    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
+    set(value) {
+        putLong(METADATA_KEY_TINGYU_FLAGS, value.toLong())
+    }
 
 /**
  * Custom property for retrieving a [MediaDescriptionCompat] which also includes
@@ -242,3 +253,4 @@ inline val MediaMetadataCompat.fullDescription
         description.also {
             it.extras?.putAll(bundle)
         }
+const val METADATA_KEY_TINGYU_FLAGS = "ccom.xinyu.tingyu.media.METADATA_KEY_UAMP_FLAGS"

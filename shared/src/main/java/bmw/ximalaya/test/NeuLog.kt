@@ -2,8 +2,8 @@ package bmw.ximalaya.test
 
 import android.util.Log
 
-object LijhLog {
-    var TAG = "lijh>"
+object NeuLog {
+    var TAG = "Neusoft>"
     var cause: String? = null
     private fun getStackTraceString(cause: String?, trace: Boolean = true): String {
         return cause ?: Thread.currentThread().stackTrace
