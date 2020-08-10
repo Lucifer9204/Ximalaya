@@ -41,6 +41,11 @@
         <service
             android:name="com.ximalaya.ting.android.opensdk.player.service.XmPlayerService"
             android:process=":player" />
+
+        <provider
+            android:authorities="com.xinyu.tingyu.provider"
+            android:exported="true"
+            android:name=".AlbumArtContentProvider"/>
     </application>
 
 </manifest>

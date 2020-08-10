@@ -12,9 +12,7 @@ import android.util.Base64
 import android.util.Log
 import androidx.annotation.XmlRes
 import androidx.media.MediaBrowserServiceCompat
-import bmw.ximalaya.test.LijhLog
-import bmw.ximalaya.testauto.shared.BuildConfig
-import bmw.ximalaya.testauto.shared.R
+import bmw.ximalaya.test.NeuLog
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.security.MessageDigest
@@ -118,7 +116,7 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
                     callerPackageInfo.packageName,
                     callerPackageInfo.signature
                 )
-            LijhLog.e(formattedLog)
+            NeuLog.e(formattedLog)
         }
     }
 
@@ -232,7 +230,7 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         try {
             md = MessageDigest.getInstance("SHA256")
         } catch (noSuchAlgorithmException: NoSuchAlgorithmException) {
-            LijhLog.e( "No such algorithm: $noSuchAlgorithmException")
+            NeuLog.e( "No such algorithm: $noSuchAlgorithmException")
             throw RuntimeException("Could not find SHA256 hash algorithm", noSuchAlgorithmException)
         }
         md.update(certificate)

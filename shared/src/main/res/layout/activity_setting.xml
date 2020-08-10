@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="HelloElenaWang"
+        android:text="HelloTingYu"
         tools:layout_editor_absoluteX="177dp"
         tools:layout_editor_absoluteY="352dp" />
 
