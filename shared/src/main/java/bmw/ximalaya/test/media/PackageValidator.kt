@@ -1,4 +1,4 @@
-package bmw.ximalaya.testauto.shared
+package bmw.ximalaya.test.media
 
 import android.Manifest
 import android.Manifest.permission.MEDIA_CONTENT_CONTROL
@@ -12,7 +12,8 @@ import android.util.Base64
 import android.util.Log
 import androidx.annotation.XmlRes
 import androidx.media.MediaBrowserServiceCompat
-import bmw.ximalaya.test.NeuLog
+import bmw.ximalaya.test.extensions.NeuLog
+import com.ximalaya.ting.android.opensdk.BuildConfig
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.security.MessageDigest

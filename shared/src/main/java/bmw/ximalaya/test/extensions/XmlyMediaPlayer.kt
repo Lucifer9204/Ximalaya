@@ -1,4 +1,4 @@
-package bmw.ximalaya.test
+package bmw.ximalaya.test.extensions
 
 import android.content.Context
 import com.ximalaya.ting.android.opensdk.auth.utils.QrcodeLoginUtil
@@ -31,15 +31,16 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
     private val mXmPlayerManager: XmPlayerManager = XmPlayerManager.getInstance(ctx)
 
     init {
-        val mAppKey = "caab9bab1978f96b55183615c07893da"
+   //     val mAppKey = "caab9bab1978f96b55183615c07893da"
 //        val mAppKey = BuildConfig.APP_KEY
-//        val mAppKey = "cd20c7ad5c24ad42978f84384369d84a"
-        val mPackId = "bmw.ximalaya.test"
+        val mAppKey = "cd20c7ad5c24ad42978f84384369d84a"
+  //      val mPackId = "bmw.ximalaya.test"
 //        val mPackId = BuildConfig.APPLICATION_ID
-//        val mPackId = "com.neusoft.alfus.nas.extra.cloud.fm"
-        val mAppSecret = "f63f5bf2005278cefbbc248896e4b774"
-//        val mAppSecret = BuildConfig.APP_SECRET
-//        val mAppSecret = "286f08848f6cecd74a197b0cc1e26f08"
+        val mPackId = "com.neusoft.alfus.nas.extra.cloud.fm"
+ //       val mAppSecret = "f63f5bf2005278cefbbc248896e4b774"
+
+        val mAppSecret = "286f08848f6cecd74a197b0cc1e26f08"
+//        val mAppSecret = BuildConfig.APP_SECRET /
         mXimalaya.setAppkey(mAppKey)
         mXimalaya.setPackid(mPackId)
         mXimalaya.useHttps = true
@@ -47,15 +48,15 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
 //        mXimalaya.mNoSupportHttps.add("http://www.baidu.com/request")
 //        mXimalaya.mNoSupportHttps.add("http://adse.ximalaya.com")
 
-        val config: Config = Config()
-        config.useProxy = false // 若想使用代理，必须配置此项为true，否则代理配置被忽略
-
-        config.proxyHost = "172.30.50.10"
-        config.proxyPort = 8080
-        config.connectionTimeOut = 3000
-        config.readTimeOut = 3000
-        config.writeTimeOut = 3000
-        CommonRequest.getInstanse().httpConfig = config
+//        val config: Config = Config()
+//        config.useProxy = false // 若想使用代理，必须配置此项为true，否则代理配置被忽略
+//
+//        config.proxyHost = "172.30.50.10"
+//        config.proxyPort = 8080
+//        config.connectionTimeOut = 3000
+//        config.readTimeOut = 3000
+//        config.writeTimeOut = 3000
+//        CommonRequest.getInstanse().httpConfig = config
         mXmPlayerManager.init()
         mXmPlayerManager.addPlayerStatusListener(this)
         mXmPlayerManager.addAdsStatusListener(this)
@@ -100,10 +101,12 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
         (CommonRequest::getTracks)(specificParams, object: IDataCallBack<TrackList>{
             override fun onSuccess(p0: TrackList?) {
                 future.complete(p0)
+                NeuLog.e()
             }
 
             override fun onError(p0: Int, p1: String?) {
                 future.completeExceptionally(Exception(p1))
+                NeuLog.e()
             }
         })
         return future
@@ -115,10 +118,12 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
         (CommonRequest::getCategories)(specificParams, object: IDataCallBack<CategoryList>{
             override fun onSuccess(p0: CategoryList?) {
                 future.complete(p0)
+                NeuLog.e()
             }
 
             override fun onError(p0: Int, p1: String?) {
                 future.completeExceptionally(Exception(p1))
+                NeuLog.e()
             }
         })
         return future
@@ -132,16 +137,19 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
         (CommonRequest::getAlbumList)(specificParams, object: IDataCallBack<AlbumList>{
             override fun onSuccess(p0: AlbumList?) {
                 future.complete(p0)
+                NeuLog.e()
             }
 
             override fun onError(p0: Int, p1: String?) {
                 future.completeExceptionally(Exception(p1))
+                NeuLog.e()
             }
         })
         return future
     }
     fun requestGernerateQRCodeForLogin(specificParams:MutableMap<String, String>, callback: QrcodeLoginUtil.IGenerateCallBack){
         (QrcodeLoginUtil::requestGernerateQRCodeForLogin)(specificParams, callback)
+        NeuLog.e()
     }
 
     override fun onPlayStart() {
@@ -178,7 +186,7 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
 
     override fun onError(p0: XmPlayerException?): Boolean {
         NeuLog.e("($p0)")
-//        mXmPlayerManager.playNext()
+        mXmPlayerManager.playNext()
         return true
     }
 

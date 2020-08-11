@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package bmw.ximalaya.testauto.shared
+package bmw.ximalaya.test.media
 
 import android.content.ContentProvider
 import android.content.ContentValues

@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package bmw.ximalaya.testauto.shared
+package bmw.ximalaya.test.media
 
 import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.upstream.DataSource
 
 /**
  * Useful extensions for [MediaMetadataCompat].
@@ -242,6 +246,31 @@ inline var MediaMetadataCompat.Builder.flag: Int
         putLong(METADATA_KEY_TINGYU_FLAGS, value.toLong())
     }
 
+
+/**
+ * Extension method for building an [ExtractorMediaSource] from a [MediaMetadataCompat] object.
+ *
+ * For convenience, place the [MediaDescriptionCompat] into the tag so it can be retrieved later.
+ */
+fun MediaMetadataCompat.toMediaSource(dataSourceFactory: DataSource.Factory) =
+    ProgressiveMediaSource.Factory(dataSourceFactory)
+        .setTag(fullDescription)
+        .createMediaSource(mediaUri)
+
+/**
+ * Extension method for building a [ConcatenatingMediaSource] given a [List]
+ * of [MediaMetadataCompat] objects.
+ */
+fun List<MediaMetadataCompat>.toMediaSource(
+    dataSourceFactory: DataSource.Factory
+): ConcatenatingMediaSource {
+
+    val concatenatingMediaSource = ConcatenatingMediaSource()
+    forEach {
+        concatenatingMediaSource.addMediaSource(it.toMediaSource(dataSourceFactory))
+    }
+    return concatenatingMediaSource
+}
 /**
  * Custom property for retrieving a [MediaDescriptionCompat] which also includes
  * all of the keys from the [MediaMetadataCompat] object in its extras.
@@ -253,4 +282,12 @@ inline val MediaMetadataCompat.fullDescription
         description.also {
             it.extras?.putAll(bundle)
         }
-const val METADATA_KEY_TINGYU_FLAGS = "ccom.xinyu.tingyu.media.METADATA_KEY_UAMP_FLAGS"
+
+/**
+ * Custom property that holds whether an item is [MediaItem.FLAG_BROWSABLE] or
+ * [MediaItem.FLAG_PLAYABLE].
+ */
+const val METADATA_KEY_TINGYU_FLAGS = "com.xinyu.tingyu.media.METADATA_KEY_UAMP_FLAGS"
+
+
+

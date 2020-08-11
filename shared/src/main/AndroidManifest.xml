@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="bmw.ximalaya.testauto.shared">
+    package="bmw.ximalaya.test.media">
 
     <!--连接网络-->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -43,7 +43,7 @@
             android:process=":player" />
 
         <provider
-            android:authorities="com.xinyu.tingyu.provider"
+            android:authorities="bmw.ximalaya.test.provider"
             android:exported="true"
             android:name=".AlbumArtContentProvider"/>
     </application>
