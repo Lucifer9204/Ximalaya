@@ -1,14 +1,32 @@
-package bmw.ximalaya.testauto.shared
+package bmw.ximalaya.test.media
 
 import android.media.MediaMetadata
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
+import android.widget.Toast
 import androidx.media.MediaBrowserServiceCompat
-import bmw.ximalaya.test.NeuLog
-import bmw.ximalaya.test.XmlyMediaPlayer
+import bmw.ximalaya.test.extensions.NeuLog
+import bmw.ximalaya.test.extensions.XmlyMediaPlayer
+import bmw.ximalaya.test.media.R
+import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.Timeline
+import com.google.android.exoplayer2.audio.AudioAttributes
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
+import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
+import com.google.android.exoplayer2.ui.PlayerNotificationManager
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
+
+
 
 
 /**
@@ -60,15 +78,94 @@ import bmw.ximalaya.test.XmlyMediaPlayer
  */
 class MyMusicService : MediaBrowserServiceCompat() {
 
-    private lateinit var session: MediaSessionCompat
+    /**
+     * Configure ExoPlayer to handle audio focus for us.
+     * See [Player.AudioComponent.setAudioAttributes] for details.
+     */
+    private val exoPlayer: ExoPlayer by lazy {
+        SimpleExoPlayer.Builder(this).build().apply {
+            setAudioAttributes(xMLYAudioAttributes, true)
+            setHandleAudioBecomingNoisy(true)
+            addListener(playerListener)
+        }
+    }
+
     private val xmlyPlayer by lazy {
         XmlyMediaPlayer(this)
     }
+
+    private lateinit var session: MediaSessionCompat
+    protected lateinit var mediaSessionConnector: MediaSessionConnector
     private val musicSource by lazy { XmlyMusicSource(this) }
     private val browseTree: BrowseTree by lazy {
         BrowseTree(applicationContext, musicSource)
     }
     private lateinit var packageValidator: PackageValidator
+
+    private val xMLYAudioAttributes = AudioAttributes.Builder()
+        .setContentType(C.CONTENT_TYPE_MUSIC)
+        .setUsage(C.USAGE_MEDIA)
+        .build()
+
+    private val playerListener = PlayerEventListener()
+
+
+    /**
+     * Listen for events from ExoPlayer.
+     */
+    private inner class PlayerEventListener : Player.EventListener {
+        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+            when (playbackState) {
+                Player.STATE_BUFFERING,
+                Player.STATE_READY -> {
+
+                    // If playback is paused we remove the foreground state which allows the
+                    // notification to be dismissed. An alternative would be to provide a "close"
+                    // button in the notification which stops playback and clears the notification.
+                    if (playbackState == Player.STATE_READY) {
+                        if (!playWhenReady) stopForeground(false)
+                    }
+                }
+                else -> {
+
+                }
+            }
+        }
+
+        override fun onPlayerError(error: ExoPlaybackException) {
+            var message = R.string.generic_error;
+            when (error.type) {
+                // If the data from MediaSource object could not be loaded the Exoplayer raises
+                // a type_source error.
+                // An error message is printed to UI via Toast message to inform the user.
+                ExoPlaybackException.TYPE_SOURCE -> {
+                    message = R.string.error_media_not_found;
+                    NeuLog.e(TAG, "TYPE_SOURCE: " + error.sourceException.message)
+                }
+                // If the error occurs in a render component, Exoplayer raises a type_remote error.
+                ExoPlaybackException.TYPE_RENDERER -> {
+                    NeuLog.e(TAG, "TYPE_RENDERER: " + error.rendererException.message)
+                }
+                // If occurs an unexpected RuntimeException Exoplayer raises a type_unexpected error.
+                ExoPlaybackException.TYPE_UNEXPECTED -> {
+                    NeuLog.e(TAG, "TYPE_UNEXPECTED: " + error.unexpectedException.message)
+                }
+                // Occurs when there is a OutOfMemory error.
+                ExoPlaybackException.TYPE_OUT_OF_MEMORY -> {
+                    NeuLog.e(TAG, "TYPE_OUT_OF_MEMORY: " + error.outOfMemoryError.message)
+                }
+                // If the error occurs in a remote component, Exoplayer raises a type_remote error.
+                ExoPlaybackException.TYPE_REMOTE -> {
+                    NeuLog.e(TAG, "TYPE_REMOTE: " + error.message)
+                }
+            }
+            Toast.makeText(
+                applicationContext,
+                message,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     private val callback = object : MediaSessionCompat.Callback() {
         override fun onPlay() {
@@ -181,7 +278,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
     override fun onCreate() {
         super.onCreate()
         NeuLog.e()
-//        xmlyPlayer
+        //xmlyPlayer
         browseTree.init()
 
         packageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
@@ -198,6 +295,26 @@ class MyMusicService : MediaBrowserServiceCompat() {
 
         session.setPlaybackState(playbackState)
         session.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
+
+        // ExoPlayer will manage the MediaSession for us.
+        mediaSessionConnector = MediaSessionConnector(session).also { connector ->
+            // Produces DataSource instances through which media data is loaded.
+            val dataSourceFactory = DefaultDataSourceFactory(
+                this, Util.getUserAgent(this, XMLY_USER_AGENT), null
+            )
+
+            // Create the PlaybackPreparer of the media session connector.
+            val playbackPreparer = XmlyPlaybackPreparer(
+                musicSource,
+                exoPlayer,
+                dataSourceFactory
+            )
+
+            connector.setPlayer(exoPlayer)
+            connector.setPlaybackPreparer(playbackPreparer)
+            connector.setQueueNavigator(XmlyQueueNavigator(session))
+        }
+
         packageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
     }
 
@@ -232,6 +349,10 @@ class MyMusicService : MediaBrowserServiceCompat() {
     override fun onDestroy() {
         NeuLog.e()
         session.release()
+
+        // Free ExoPlayer resources.
+        exoPlayer.removeListener(playerListener)
+        exoPlayer.release()
     }
     private fun getAvailableActions(): Long {
         return PlaybackStateCompat.ACTION_PLAY_PAUSE or
@@ -258,7 +379,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
                 putInt(CONTENT_STYLE_BROWSABLE_HINT, CONTENT_STYLE_GRID)
                 putInt(CONTENT_STYLE_PLAYABLE_HINT, CONTENT_STYLE_LIST)
             }
-            BrowserRoot(TINGYU_BROWSABLE_ROOT, rootExtras)
+            BrowserRoot(NEU_BROWSABLE_ROOT, rootExtras)
         } else {
             null
         }
@@ -283,17 +404,32 @@ class MyMusicService : MediaBrowserServiceCompat() {
     }
 }
 
-const val TINGYU_BROWSABLE_ROOT = "/"
-const val TINGYU_EMPTY_ROOT = "@empty@"
-const val TINGYU_HOME_ROOT = "__HOME__"
-const val TINGYU_BROWSER_ROOT = "__BROWSER__"
-const val TINGYU_RECENT_ROOT = "__RECENT__"
-const val TINGYU_LIBRARY_ROOT = "__LIBRARY__"
+/**
+ * Helper class to retrieve the the Metadata necessary for the ExoPlayer MediaSession connection
+ * extension to call [MediaSessionCompat.setMetadata].
+ */
+private class XmlyQueueNavigator(
+    mediaSession: MediaSessionCompat
+) : TimelineQueueNavigator(mediaSession) {
+    private val window = Timeline.Window()
+    override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat =
+        player.currentTimeline
+            .getWindow(windowIndex, window).tag as MediaDescriptionCompat
+}
+
+
+const val NEU_BROWSABLE_ROOT = "/"
+const val NEU_EMPTY_ROOT = "@empty@"
+const val NEU_HOME_ROOT = "__HOME__"
+const val NEU_BROWSER_ROOT = "__BROWSER__"
+const val NEU_BROWSERLEVEL1_ROOT = "__BROWSER__LEVEL1_"
+const val NEU_RECENT_ROOT = "__RECENT__"
+const val NEU_LIBRARY_ROOT = "__LIBRARY__"
 
 const val MEDIA_SEARCH_SUPPORTED = "android.media.browse.SEARCH_SUPPORTED"
 
-const val RESOURCE_DRAWABLE_ROOT_URI = "android.resource://com.xinyu.tingyuauto/drawable/"
-const val RESOURCE_MIPMAP_ROOT_URI = "android.resource://com.xinyu.tingyuauto/mipmap/"
+const val RESOURCE_DRAWABLE_ROOT_URI = "android.resource://bmw.ximalaya.test.media/drawable/"
+const val RESOURCE_MIPMAP_ROOT_URI = "android.resource://bmw.ximalaya.test.media/mipmap/"
 const val EXTRA_CONTENT_STYLE_GROUP_TITLE_HINT = "android.media.browse.CONTENT_STYLE_GROUP_TITLE_HINT"
 const val CONTENT_STYLE_BROWSABLE_HINT = "android.media.browse.CONTENT_STYLE_BROWSABLE_HINT"
 const val CONTENT_STYLE_PLAYABLE_HINT = "android.media.browse.CONTENT_STYLE_PLAYABLE_HINT"
@@ -309,3 +445,5 @@ const val STATUS_NOT_PLAYED = 0
 const val STATUS_PARTIALLY_PLAYED = 1
 const val STATUS_FULLY_PLAYED = 2
 const val NOTIFICATION_LARGE_ICON_SIZE = 144 // px
+private const val TAG = "MyMusicService"
+private const val XMLY_USER_AGENT = "xmly.next"
