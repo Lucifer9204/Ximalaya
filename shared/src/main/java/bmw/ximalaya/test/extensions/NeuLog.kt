@@ -1,4 +1,4 @@
-package bmw.ximalaya.test
+package bmw.ximalaya.test.extensions
 
 import android.util.Log
 

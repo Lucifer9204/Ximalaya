@@ -1,4 +1,4 @@
-package bmw.ximalaya.testauto.shared
+package bmw.ximalaya.test.media
 
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity

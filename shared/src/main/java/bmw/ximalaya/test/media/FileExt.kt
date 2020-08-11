@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package bmw.ximalaya.testauto.shared
+package bmw.ximalaya.test.media
 
 import android.content.ContentResolver
 import android.net.Uri
@@ -35,4 +35,4 @@ fun File.asAlbumArtContentUri(): Uri {
         .build()
 }
 
-private const val AUTHORITY = "com.xinyu.tingyu.provider"
+private const val AUTHORITY = "bmw.ximalaya.test.provider"
