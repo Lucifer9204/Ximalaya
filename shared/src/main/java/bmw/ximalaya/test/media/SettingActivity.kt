@@ -90,10 +90,7 @@ class SettingActivity : AppCompatActivity() {
                         }, object : IDataCallBack<XmlyAuth2AccessToken?> {
                                 override fun onSuccess(objects: XmlyAuth2AccessToken?) {
                                     if (objects!= null) {
-                                        /**
-                                         * 关键!!!!!!!!!!
-                                         * 结果返回之后将取回的结果设置到token管理器中
-                                         */
+
                                         AccessTokenManager.getInstanse().setAccessTokenAndUid(
                                             objects.token,
                                             objects.refreshToken,
@@ -103,7 +100,6 @@ class SettingActivity : AppCompatActivity() {
                                     if (countDownTimer != null) {
                                         countDownTimer!!.cancel()
                                     }
-                                    //Toast.makeText(XMAuthDemoActivity.this, "登录成功了", Toast.LENGTH_SHORT).show();
                                 }
                             }
 
