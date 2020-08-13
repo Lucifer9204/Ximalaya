@@ -7,26 +7,16 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import android.widget.Toast
 import androidx.media.MediaBrowserServiceCompat
 import bmw.ximalaya.test.extensions.NeuLog
 import bmw.ximalaya.test.extensions.XmlyMediaPlayer
-import bmw.ximalaya.test.media.R
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.Timeline
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-
-
 
 
 /**
@@ -90,7 +80,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
         }
     }
 
-    private val xmlyPlayer by lazy {
+     val xmlyPlayer by lazy {
         XmlyMediaPlayer(this)
     }
 
@@ -98,8 +88,9 @@ class MyMusicService : MediaBrowserServiceCompat() {
     protected lateinit var mediaSessionConnector: MediaSessionConnector
     private val musicSource by lazy { XmlyMusicSource(this) }
     private val browseTree: BrowseTree by lazy {
-        BrowseTree(applicationContext, musicSource)
+        BrowseTree(applicationContext, musicSource, xmlyPlayer)
     }
+
     private lateinit var packageValidator: PackageValidator
 
     private val xMLYAudioAttributes = AudioAttributes.Builder()
@@ -124,6 +115,9 @@ class MyMusicService : MediaBrowserServiceCompat() {
                     // button in the notification which stops playback and clears the notification.
                     if (playbackState == Player.STATE_READY) {
                         if (!playWhenReady) stopForeground(false)
+                        if (callback != null) {
+
+                        }
                     }
                 }
                 else -> {
@@ -240,7 +234,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
         }
     }
 
-    private fun updatePlayingInfo() {
+     fun updatePlayingInfo() {
         val song = musicSource.iterator().next()
         val metadata = MediaMetadataCompat.Builder()
             .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, song.displayTitle)
@@ -291,10 +285,11 @@ class MyMusicService : MediaBrowserServiceCompat() {
                     MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
         )
 
-        val playbackState = createPlaybackState(PlaybackStateCompat.STATE_PAUSED)
+        val playbackState = createPlaybackState(PlaybackStateCompat.STATE_PLAYING)
 
         session.setPlaybackState(playbackState)
         session.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
+
 
         // ExoPlayer will manage the MediaSession for us.
         mediaSessionConnector = MediaSessionConnector(session).also { connector ->
@@ -312,6 +307,8 @@ class MyMusicService : MediaBrowserServiceCompat() {
 
             connector.setPlayer(exoPlayer)
             connector.setPlaybackPreparer(playbackPreparer)
+            /*connector.setCustomActionProviders(
+            )*/
             connector.setQueueNavigator(XmlyQueueNavigator(session))
         }
 
@@ -329,6 +326,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
             .addCustomAction("c", "c", R.drawable.ic_recommended)
             .addCustomAction("d", "d", R.drawable.ic_recommended)
             .addCustomAction("e", "e", R.drawable.ic_recommended)
+            .addCustomAction("f", "e", R.drawable.ic_recommended)
             .addCustomAction(
                 PlaybackStateCompat.CustomAction.Builder(
                     "b",
@@ -354,7 +352,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
         exoPlayer.removeListener(playerListener)
         exoPlayer.release()
     }
-    private fun getAvailableActions(): Long {
+     fun getAvailableActions(): Long {
         return PlaybackStateCompat.ACTION_PLAY_PAUSE or
                 PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
                 PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH or
@@ -379,7 +377,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
                 putInt(CONTENT_STYLE_BROWSABLE_HINT, CONTENT_STYLE_GRID)
                 putInt(CONTENT_STYLE_PLAYABLE_HINT, CONTENT_STYLE_LIST)
             }
-            BrowserRoot(NEU_BROWSABLE_ROOT, rootExtras)
+            BrowserRoot(TINGYU_BROWSABLE_ROOT, rootExtras)
         } else {
             null
         }
@@ -418,18 +416,17 @@ private class XmlyQueueNavigator(
 }
 
 
-const val NEU_BROWSABLE_ROOT = "/"
-const val NEU_EMPTY_ROOT = "@empty@"
-const val NEU_HOME_ROOT = "__HOME__"
-const val NEU_BROWSER_ROOT = "__BROWSER__"
-const val NEU_BROWSERLEVEL1_ROOT = "__BROWSER__LEVEL1_"
-const val NEU_RECENT_ROOT = "__RECENT__"
-const val NEU_LIBRARY_ROOT = "__LIBRARY__"
+const val TINGYU_BROWSABLE_ROOT = "/"
+const val TINGYU_EMPTY_ROOT = "@empty@"
+const val TINGYU_HOME_ROOT = "__HOME__"
+const val TINGYU_BROWSER_ROOT = "__BROWSER__"
+const val TINGYU_RECENT_ROOT = "__RECENT__"
+const val TINGYU_LIBRARY_ROOT = "__LIBRARY__"
 
 const val MEDIA_SEARCH_SUPPORTED = "android.media.browse.SEARCH_SUPPORTED"
 
-const val RESOURCE_DRAWABLE_ROOT_URI = "android.resource://bmw.ximalaya.test.media/drawable/"
-const val RESOURCE_MIPMAP_ROOT_URI = "android.resource://bmw.ximalaya.test.media/mipmap/"
+const val RESOURCE_DRAWABLE_ROOT_URI = "android.resource://bmw.ximalaya.test/drawable/"
+const val RESOURCE_MIPMAP_ROOT_URI = "android.resource://bmw.ximalaya.test/mipmap/"
 const val EXTRA_CONTENT_STYLE_GROUP_TITLE_HINT = "android.media.browse.CONTENT_STYLE_GROUP_TITLE_HINT"
 const val CONTENT_STYLE_BROWSABLE_HINT = "android.media.browse.CONTENT_STYLE_BROWSABLE_HINT"
 const val CONTENT_STYLE_PLAYABLE_HINT = "android.media.browse.CONTENT_STYLE_PLAYABLE_HINT"

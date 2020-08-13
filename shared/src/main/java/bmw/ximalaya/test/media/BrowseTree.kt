@@ -1,76 +1,109 @@
 package bmw.ximalaya.test.media
 
+
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
+import com.bumptech.glide.Glide
+import bmw.ximalaya.test.extensions.NeuLog
+import bmw.ximalaya.test.extensions.XmlyMediaPlayer
 
-class BrowseTree(context: Context, var musicSource: XmlyMusicSource) {
+class BrowseTree(context: Context, var musicSource: XmlyMusicSource, var xmlyPlayer : XmlyMediaPlayer) {
+
+    private val glide by lazy { Glide.with(context) }
     private val mediaIdToChildren = mutableMapOf<String, MutableList<MediaMetadataCompat>>(
         Pair(
-            NEU_BROWSABLE_ROOT, mutableListOf(
+            TINGYU_BROWSABLE_ROOT, mutableListOf(
                 MediaMetadataCompat.Builder().apply {
-                    id = NEU_HOME_ROOT
+                    id = TINGYU_HOME_ROOT
                     title = "HOME"
                     albumArtUri =
                         "${RESOURCE_DRAWABLE_ROOT_URI}${context.resources.getResourceEntryName(R.drawable.ic_recommended)}"
                     flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
                 }.build(),
                 MediaMetadataCompat.Builder().apply {
-                    id = NEU_BROWSER_ROOT
+                    id = TINGYU_BROWSER_ROOT
                     title = "BROWSER"
                     albumArtUri =
                         "${RESOURCE_DRAWABLE_ROOT_URI}${context.resources.getResourceEntryName(R.drawable.ic_browser)}"
                     flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
                 }.build(),
                 MediaMetadataCompat.Builder().apply {
-                    id = NEU_RECENT_ROOT
+                    id = TINGYU_RECENT_ROOT
                     title = "RECENT"
                     albumArtUri =
                         "${RESOURCE_DRAWABLE_ROOT_URI}${context.resources.getResourceEntryName(R.drawable.ic_recent)}"
                     flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
                 }.build(),
                 MediaMetadataCompat.Builder().apply {
-                    id = NEU_LIBRARY_ROOT
-                    title = "LIBRARY"
+                    id = TINGYU_LIBRARY_ROOT
+                    title = "FAVORITE"
                     albumArtUri =
                         "${RESOURCE_DRAWABLE_ROOT_URI}${context.resources.getResourceEntryName(R.drawable.ic_library)}"
                     flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
                 }.build()
             )
-        ), Pair(NEU_HOME_ROOT, mutableListOf())
-        , Pair(NEU_BROWSER_ROOT, mutableListOf())
-        , Pair(NEU_RECENT_ROOT, mutableListOf())
-        , Pair(NEU_LIBRARY_ROOT, mutableListOf())
+        ), Pair(TINGYU_HOME_ROOT, mutableListOf())
+        , Pair(TINGYU_BROWSER_ROOT, mutableListOf())
+        , Pair(TINGYU_RECENT_ROOT, mutableListOf())
+        , Pair(TINGYU_LIBRARY_ROOT, mutableListOf())
     )
 
     operator fun get(key: String) = mediaIdToChildren[key]
     fun init() {
-        musicSource.load()
+        musicSource.load(xmlyPlayer)
         musicSource.whenReady {
             if(it){
                 val sourceList = musicSource.map { it }
-                this[NEU_BROWSER_ROOT]?.add(
+                this[TINGYU_BROWSER_ROOT]?.add(
                     MediaMetadataCompat.Builder().apply {
-                        id = NEU_BROWSERLEVEL1_ROOT
-                        title = "BROWSERLEVEL1"
+                        id = "id_jdlg"
+                        title = "经典老歌"
+                      //  artist = "周华健"
+                        albumArtUri = sourceList[0].albumArtUri.toString()
                         flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
                     }.build()
                 )
-               // mediaIdToChildren["id_jdlg"] = mutableListOf<MediaMetadataCompat>().apply{addAll(sourceList)}
-                mediaIdToChildren[NEU_BROWSERLEVEL1_ROOT] = mutableListOf<MediaMetadataCompat>().apply{
+                mediaIdToChildren["id_jdlg"] = mutableListOf<MediaMetadataCompat>().apply{
                     this?.add(
                         MediaMetadataCompat.Builder().apply {
-                            id = "id_jdlg"
-                            title = "经典老歌"
+                            id = "id_jdlgex"
+                            title = "热门歌曲"
                             albumArtUri = sourceList[0].albumArtUri.toString()
                             flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
-                        }.build())
+                        }.build()
+                    )
                 }
-                mediaIdToChildren["id_jdlg"] = mutableListOf<MediaMetadataCompat>().apply{addAll(sourceList)}
-                this[NEU_HOME_ROOT]?.addAll(sourceList)
-                this[NEU_RECENT_ROOT]?.addAll(sourceList)
-                this[NEU_LIBRARY_ROOT]?.addAll(sourceList)
+//                mediaIdToChildren["id_jdlg"] = mutableListOf<MediaMetadataCompat>().apply{addAll(sourceList)}
+                mediaIdToChildren["id_jdlgex"] = mutableListOf<MediaMetadataCompat>().apply{
+                    addAll(sourceList)
+                }
+
+                NeuLog.e("mediaItems(${musicSource.albumList})")
+                this[TINGYU_HOME_ROOT]?.addAll(
+                    musicSource.albumList
+//                    getMediaMetadataCompats()
+//                    MediaMetadataCompat.Builder().apply {
+//                        id = "id_jdlgh"
+//                        title = "经典老歌"
+//                        //  artist = "周华健"
+//                        albumArtUri = sourceList[0].albumArtUri.toString()
+//                        flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+//                    }.build()
+                )
+
+                mediaIdToChildren[musicSource.albumList[0].id.toString()] = mutableListOf<MediaMetadataCompat>().apply{
+                    addAll(sourceList)
+                }
+//                mediaIdToChildren[musicSource.albumList[1].id.toString()] = mutableListOf<MediaMetadataCompat>().apply{
+//                    addAll(sourceList)
+//                }
+         //       this[TINGYU_HOME_ROOT]?.addAll(sourceList)
+                this[TINGYU_RECENT_ROOT]?.addAll(sourceList)
+                this[TINGYU_LIBRARY_ROOT]?.addAll(sourceList)
             }
         }
     }
+
+
 }

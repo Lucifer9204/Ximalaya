@@ -54,7 +54,17 @@ class XmlyPlaybackPreparer(
         PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
                 PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
                 PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH or
-                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH or
+                PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
+                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH or
+                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                PlaybackStateCompat.ACTION_PLAY or
+                PlaybackStateCompat.ACTION_FAST_FORWARD or
+                PlaybackStateCompat.ACTION_PLAY_FROM_URI or
+                PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
+
 
     override fun onPrepare(playWhenReady: Boolean) = Unit
 
