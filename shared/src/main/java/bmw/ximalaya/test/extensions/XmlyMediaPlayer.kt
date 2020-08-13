@@ -49,7 +49,7 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
 //        mXimalaya.mNoSupportHttps.add("http://adse.ximalaya.com")
 
         val config: Config = Config()
-        config.useProxy = false // 若想使用代理，必须配置此项为true，否则代理配置被忽略
+        config.useProxy = false
 
         config.proxyHost = "172.30.50.10"
         config.proxyPort = 8080
