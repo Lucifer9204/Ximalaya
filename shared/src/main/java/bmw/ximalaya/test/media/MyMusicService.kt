@@ -10,7 +10,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.Toast
 import androidx.media.MediaBrowserServiceCompat
 import bmw.ximalaya.test.extensions.NeuLog
-import bmw.ximalaya.test.extensions.XmlyMediaPlayer
+import bmw.ximalaya.test.extensions.XmlyMediaFactory
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -80,15 +80,15 @@ class MyMusicService : MediaBrowserServiceCompat() {
         }
     }
 
-     val xmlyPlayer by lazy {
-        XmlyMediaPlayer(this)
+     val xmlyMediaFactory by lazy {
+        XmlyMediaFactory(this)
     }
 
     private lateinit var session: MediaSessionCompat
     protected lateinit var mediaSessionConnector: MediaSessionConnector
     private val musicSource by lazy { XmlyMusicSource(this) }
     private val browseTree: BrowseTree by lazy {
-        BrowseTree(applicationContext, musicSource, xmlyPlayer)
+        BrowseTree(applicationContext, musicSource, xmlyMediaFactory)
     }
 
     private lateinit var packageValidator: PackageValidator
@@ -258,14 +258,23 @@ class MyMusicService : MediaBrowserServiceCompat() {
         session.setQueue(listOf(MediaSessionCompat.QueueItem(song.description, 0),MediaSessionCompat.QueueItem(song.description, 2),MediaSessionCompat.QueueItem(song.description, 3)))
     }
 
+
+    /**
+     * Returns a list of [MediaItem]s that match the given search query
+     */
     override fun onSearch(query: String, extras: Bundle?, result: Result<MutableList<MediaItem>>) {
         NeuLog.e("$query")
-//        super.onSearch(query, extras, result)
-        if(query == "home"){
-            val mediaItems = mutableListOf<MediaItem>()
+        val resultsSent = musicSource.whenReady { successfullyInitialized ->
+            if (successfullyInitialized) {
+                val resultsList = musicSource.search(query, extras ?: Bundle.EMPTY)
+                    .map { mediaMetadata ->
+                        MediaItem(mediaMetadata.description, mediaMetadata.flag)
+                    }
+                result.sendResult(resultsList as MutableList<MediaItem>?)
+            }
+        }
 
-            result.sendResult(mediaItems)
-        } else {
+        if (!resultsSent) {
             result.detach()
         }
     }
