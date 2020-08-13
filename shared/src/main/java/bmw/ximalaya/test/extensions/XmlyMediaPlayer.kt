@@ -31,13 +31,13 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
     private val mXmPlayerManager: XmPlayerManager = XmPlayerManager.getInstance(ctx)
 
     init {
-   //     val mAppKey = "caab9bab1978f96b55183615c07893da"
+    //    val mAppKey = "caab9bab1978f96b55183615c07893da"
 //        val mAppKey = BuildConfig.APP_KEY
-        val mAppKey = "cd20c7ad5c24ad42978f84384369d84a"
-  //      val mPackId = "bmw.ximalaya.test"
+       val mAppKey = "cd20c7ad5c24ad42978f84384369d84a"
+       // val mPackId = "bmw.ximalaya.test"
 //        val mPackId = BuildConfig.APPLICATION_ID
         val mPackId = "com.neusoft.alfus.nas.extra.cloud.fm"
- //       val mAppSecret = "f63f5bf2005278cefbbc248896e4b774"
+       // val mAppSecret = "f63f5bf2005278cefbbc248896e4b774"
 
         val mAppSecret = "286f08848f6cecd74a197b0cc1e26f08"
 //        val mAppSecret = BuildConfig.APP_SECRET /
@@ -48,15 +48,15 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
 //        mXimalaya.mNoSupportHttps.add("http://www.baidu.com/request")
 //        mXimalaya.mNoSupportHttps.add("http://adse.ximalaya.com")
 
-//        val config: Config = Config()
-//        config.useProxy = false // 若想使用代理，必须配置此项为true，否则代理配置被忽略
-//
-//        config.proxyHost = "172.30.50.10"
-//        config.proxyPort = 8080
-//        config.connectionTimeOut = 3000
-//        config.readTimeOut = 3000
-//        config.writeTimeOut = 3000
-//        CommonRequest.getInstanse().httpConfig = config
+        val config: Config = Config()
+        config.useProxy = false // 若想使用代理，必须配置此项为true，否则代理配置被忽略
+
+        config.proxyHost = "172.30.50.10"
+        config.proxyPort = 8080
+        config.connectionTimeOut = 3000
+        config.readTimeOut = 3000
+        config.writeTimeOut = 3000
+        CommonRequest.getInstanse().httpConfig = config
         mXmPlayerManager.init()
         mXmPlayerManager.addPlayerStatusListener(this)
         mXmPlayerManager.addAdsStatusListener(this)
@@ -65,7 +65,7 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
 
         ConstantsOpenSdk.isDebug = true
 
-        getCategories().whenComplete { t, u ->
+    /*    getCategories().whenComplete { t, u ->
             NeuLog.e("getCategories(${t})")
             if (t != null){
                 categories = t.categories
@@ -92,10 +92,10 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
                     }
                 }
             }
-        }
+        }*/
     }
 
-    private fun getTracks(albumId:String): CompletableFuture<TrackList> {
+     fun getTracks(albumId:String): CompletableFuture<TrackList> {
         val specificParams:MutableMap<String, String> = mutableMapOf(Pair(DTransferConstants.ALBUM_ID, albumId),Pair(DTransferConstants.SORT, "asc"))
         val future = CompletableFuture<TrackList>()
         (CommonRequest::getTracks)(specificParams, object: IDataCallBack<TrackList>{
