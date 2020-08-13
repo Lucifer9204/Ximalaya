@@ -22,7 +22,7 @@ import com.ximalaya.ting.android.opensdk.player.service.IXmPlayerStatusListener
 import com.ximalaya.ting.android.opensdk.player.service.XmPlayerException
 import java.util.concurrent.CompletableFuture
 
-class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListener,
+class XmlyMediaFactory(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListener,
     XmPlayerManager.IConnectListener {
     private var albums: MutableList<Album>? = null
     private var categories: MutableList<Category>? = null
@@ -31,15 +31,15 @@ class XmlyMediaPlayer(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusListe
     private val mXmPlayerManager: XmPlayerManager = XmPlayerManager.getInstance(ctx)
 
     init {
-    //    val mAppKey = "caab9bab1978f96b55183615c07893da"
+        val mAppKey = "caab9bab1978f96b55183615c07893da"
 //        val mAppKey = BuildConfig.APP_KEY
-       val mAppKey = "cd20c7ad5c24ad42978f84384369d84a"
-       // val mPackId = "bmw.ximalaya.test"
+      // val mAppKey = "cd20c7ad5c24ad42978f84384369d84a"
+       val mPackId = "bmw.ximalaya.test"
 //        val mPackId = BuildConfig.APPLICATION_ID
-        val mPackId = "com.neusoft.alfus.nas.extra.cloud.fm"
-       // val mAppSecret = "f63f5bf2005278cefbbc248896e4b774"
+     //  val mPackId = "com.neusoft.alfus.nas.extra.cloud.fm"
+       val mAppSecret = "f63f5bf2005278cefbbc248896e4b774"
 
-        val mAppSecret = "286f08848f6cecd74a197b0cc1e26f08"
+     //  val mAppSecret = "286f08848f6cecd74a197b0cc1e26f08"
 //        val mAppSecret = BuildConfig.APP_SECRET /
         mXimalaya.setAppkey(mAppKey)
         mXimalaya.setPackid(mPackId)

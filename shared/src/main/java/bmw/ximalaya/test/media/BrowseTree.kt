@@ -6,9 +6,9 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import com.bumptech.glide.Glide
 import bmw.ximalaya.test.extensions.NeuLog
-import bmw.ximalaya.test.extensions.XmlyMediaPlayer
+import bmw.ximalaya.test.extensions.XmlyMediaFactory
 
-class BrowseTree(context: Context, var musicSource: XmlyMusicSource, var xmlyPlayer : XmlyMediaPlayer) {
+class BrowseTree(context: Context, var musicSource: XmlyMusicSource, var xmlyMediaFactory: XmlyMediaFactory) {
 
     private val glide by lazy { Glide.with(context) }
     private val mediaIdToChildren = mutableMapOf<String, MutableList<MediaMetadataCompat>>(
@@ -51,7 +51,7 @@ class BrowseTree(context: Context, var musicSource: XmlyMusicSource, var xmlyPla
 
     operator fun get(key: String) = mediaIdToChildren[key]
     fun init() {
-        musicSource.load(xmlyPlayer)
+        musicSource.load(xmlyMediaFactory)
         musicSource.whenReady {
             if(it){
                 val sourceList = musicSource.map { it }

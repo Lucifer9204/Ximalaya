@@ -9,7 +9,6 @@ import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.util.Log
 import androidx.annotation.IntDef
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
@@ -18,11 +17,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import bmw.ximalaya.test.extensions.NeuLog
-import bmw.ximalaya.test.extensions.XmlyMediaPlayer
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
+import bmw.ximalaya.test.extensions.XmlyMediaFactory
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 @IntDef(
@@ -74,7 +70,7 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
                 true
             }
         }
-    fun load(xmlyPlayer : XmlyMediaPlayer) {
+    fun load(xmlyMediaFactory : XmlyMediaFactory) {
 //        subscriber?.apply {
 //            if(!isDisposed){
 //                dispose()
@@ -82,7 +78,7 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 //        }
         state = STATE_INITIALIZING
 
-        getAlbumMediaMetadataCompats(xmlyPlayer)
+        getAlbumMediaMetadataCompats(xmlyMediaFactory)
 
 
 //        getAlbumMediaMetadataCompats(xmlyPlayer)
@@ -186,7 +182,6 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
             //    albumArtUri = artUri
             downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
             NeuLog.e("getTracks(${albumTemp.coverUrlSmall})")
-
 
             return this
         }
@@ -323,12 +318,12 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 
     }
 
-    fun getAlbumMediaMetadataCompats(xmlyPlayer : XmlyMediaPlayer): List<MediaMetadataCompat> {
+    fun getAlbumMediaMetadataCompats(xmlyMediaFactory: XmlyMediaFactory): List<MediaMetadataCompat> {
         val mediaItems = ArrayList<MediaMetadataCompat>()
 
         //   val artUriE = convertImageToUri("http://imagev2.xmcdn.com/group74/M08/F7/E5/wKgO3F6ZKlyTkqKqAAMEKEhOSIw777.jpg!op_type=5&upload_type=album&device_type=ios&name=mobile_small&magick=png")
 
-        xmlyPlayer.getAlbumList("0").whenComplete { t, u ->
+        xmlyMediaFactory.getAlbumList("0").whenComplete { t, u ->
             NeuLog.e("getAlbumList(${t})")
             if(t !=null){
 //                t.albums?.filter{
@@ -353,7 +348,7 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 
                 for(album in t.albums)
                 {
-                    xmlyPlayer.getTracks("${album.id}").whenComplete { t,u ->
+                    xmlyMediaFactory.getTracks("${album.id}").whenComplete { t, u ->
                         NeuLog.e("getTracks(${t.tracks})")
                             UpdateTrackTask(glide) { mediaItems ->
                            //     albumList = mediaItems
