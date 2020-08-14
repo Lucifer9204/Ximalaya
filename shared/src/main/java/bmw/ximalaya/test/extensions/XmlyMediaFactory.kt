@@ -95,18 +95,16 @@ class XmlyMediaFactory(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusList
         }*/
     }
 
-     fun getTracks(albumId:String): CompletableFuture<TrackList> {
-        val specificParams:MutableMap<String, String> = mutableMapOf(Pair(DTransferConstants.ALBUM_ID, albumId),Pair(DTransferConstants.SORT, "asc"))
+    fun getTracks(albumId:String): CompletableFuture<TrackList> {
+        val specificParams:MutableMap<String, String> = mutableMapOf(Pair(DTransferConstants.ALBUM_ID, albumId),Pair(DTransferConstants.SORT, "asc"), Pair(DTransferConstants.PAGE_SIZE, "10"))
         val future = CompletableFuture<TrackList>()
         (CommonRequest::getTracks)(specificParams, object: IDataCallBack<TrackList>{
             override fun onSuccess(p0: TrackList?) {
                 future.complete(p0)
-                NeuLog.e()
             }
 
             override fun onError(p0: Int, p1: String?) {
                 future.completeExceptionally(Exception(p1))
-                NeuLog.e()
             }
         })
         return future
@@ -132,21 +130,20 @@ class XmlyMediaFactory(ctx: Context) : IXmPlayerStatusListener, IXmAdsStatusList
         (CommonRequest::getTags)(specificParams, callback)
     }
     fun getAlbumList(categoryId: String): CompletableFuture<AlbumList> {
-        val specificParams:MutableMap<String, String> = mutableMapOf(Pair(DTransferConstants.CATEGORY_ID, categoryId),Pair(DTransferConstants.CALC_DIMENSION ,"1"))
+        val specificParams:MutableMap<String, String> = mutableMapOf(Pair(DTransferConstants.CATEGORY_ID, categoryId),Pair(DTransferConstants.CALC_DIMENSION ,"1"),Pair(DTransferConstants.PAGE ,"1"),Pair(DTransferConstants.PAGE_SIZE ,"10"))
         val future = CompletableFuture<AlbumList>()
         (CommonRequest::getAlbumList)(specificParams, object: IDataCallBack<AlbumList>{
             override fun onSuccess(p0: AlbumList?) {
                 future.complete(p0)
-                NeuLog.e()
             }
 
             override fun onError(p0: Int, p1: String?) {
                 future.completeExceptionally(Exception(p1))
-                NeuLog.e()
             }
         })
         return future
     }
+
     fun requestGernerateQRCodeForLogin(specificParams:MutableMap<String, String>, callback: QrcodeLoginUtil.IGenerateCallBack){
         (QrcodeLoginUtil::requestGernerateQRCodeForLogin)(specificParams, callback)
         NeuLog.e()
