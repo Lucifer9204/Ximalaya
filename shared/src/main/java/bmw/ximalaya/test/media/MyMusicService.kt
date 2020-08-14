@@ -121,7 +121,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
                     }
                 }
                 else -> {
-
                 }
             }
         }
@@ -316,8 +315,40 @@ class MyMusicService : MediaBrowserServiceCompat() {
 
             connector.setPlayer(exoPlayer)
             connector.setPlaybackPreparer(playbackPreparer)
-            /*connector.setCustomActionProviders(
-            )*/
+            connector.setCustomActionProviders(object: MediaSessionConnector.CustomActionProvider {
+                override fun getCustomAction(player: Player): PlaybackStateCompat.CustomAction? {
+                    val repeatBuilder = PlaybackStateCompat.CustomAction
+                        .Builder("p15s", "-15s", R.drawable.ic_recommended)
+                    return repeatBuilder.build()
+                }
+
+                override fun onCustomAction(
+                    player: Player,
+                    controlDispatcher: ControlDispatcher,
+                    action: String,
+                    extras: Bundle?
+                ) {
+                    NeuLog.e("$action")
+                }
+
+            },object: MediaSessionConnector.CustomActionProvider {
+                override fun getCustomAction(player: Player): PlaybackStateCompat.CustomAction? {
+                    val repeatBuilder = PlaybackStateCompat.CustomAction
+                        .Builder("n15s", "+15s", R.drawable.ic_recommended)
+                    return repeatBuilder.build()
+                }
+
+                override fun onCustomAction(
+                    player: Player,
+                    controlDispatcher: ControlDispatcher,
+                    action: String,
+                    extras: Bundle?
+                ) {
+                    NeuLog.e("$action")
+                }
+
+            })
+
             connector.setQueueNavigator(XmlyQueueNavigator(session))
         }
 
@@ -335,7 +366,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
             .addCustomAction("c", "c", R.drawable.ic_recommended)
             .addCustomAction("d", "d", R.drawable.ic_recommended)
             .addCustomAction("e", "e", R.drawable.ic_recommended)
-            .addCustomAction("f", "e", R.drawable.ic_recommended)
             .addCustomAction(
                 PlaybackStateCompat.CustomAction.Builder(
                     "b",

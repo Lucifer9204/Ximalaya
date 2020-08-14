@@ -92,8 +92,26 @@ class BrowseTree(context: Context, var musicSource: XmlyMusicSource, var xmlyMed
 //                    }.build()
                 )
 
-                mediaIdToChildren[musicSource.albumList[0].id.toString()] = mutableListOf<MediaMetadataCompat>().apply{
-                    addAll(sourceList)
+                for (album in musicSource.albumList)
+                {
+                    mediaIdToChildren[album.id.toString()] = mutableListOf<MediaMetadataCompat>().apply{
+                        var blFind: Boolean = false
+                        for (map in musicSource.albumMap)
+                        {
+                            for ((key,value) in map) {
+                                if (key == album.id.toString())
+                                {
+                                    addAll(value)
+                                    blFind = true
+                                    break;
+                                }
+                            }
+                            if (blFind)
+                            {
+                                break;
+                            }
+                        }
+                    }
                 }
 //                mediaIdToChildren[musicSource.albumList[1].id.toString()] = mutableListOf<MediaMetadataCompat>().apply{
 //                    addAll(sourceList)

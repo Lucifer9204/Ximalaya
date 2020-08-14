@@ -43,6 +43,11 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
     private val glide by lazy { Glide.with(ctx) }
     private var catalog: List<MediaMetadataCompat> = emptyList()
     public var albumList: List<MediaMetadataCompat> = emptyList()
+    private var albumListTemp: List<Album> = emptyList()
+    private var curPos: Int = 0
+
+    public var albumMap: List<MutableMap<String, List<MediaMetadataCompat>>> =
+        emptyList()
 
     @State
     var state: Int = STATE_CREATED
@@ -139,7 +144,15 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 
                     mediaItems += albums.map { album ->
 
-                        val image = album.coverUrlLarge.replaceFirst("http", "https")
+                        var image:String = ""
+
+                        if (!album.coverUrlLarge.contains("https"))
+                        {
+                            image = album.coverUrlLarge.replaceFirst("http", "https")
+                        }else
+                        {
+                            image = album.coverUrlLarge
+                        }
 
                   //      LijhLog.e("getTracks---(${album.coverUrlMiddle})")
                         val artUri = convertImageToUri(image, glide)
@@ -213,7 +226,15 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 
                     mediaItems += tracks.map { track ->
 
-                        val image = track.coverUrlMiddle.replaceFirst("http", "https")
+                        var image:String = ""
+
+                        if (!track.coverUrlMiddle.contains("https"))
+                        {
+                            image = track.coverUrlMiddle.replaceFirst("http", "https")
+                        }else
+                        {
+                            image = track.coverUrlMiddle
+                        }
 
                         //      LijhLog.e("getTracks---(${album.coverUrlMiddle})")
                         val artUri = convertImageToUri(image, glide)
@@ -248,9 +269,15 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
         fun MediaMetadataCompat.Builder.from(track: Track): MediaMetadataCompat.Builder {
        //     val image = track.coverUrlMiddle
          //   val artUri = convertImageToUri(image)
-            NeuLog.e("getTracksdownloadUrl---(${track.downloadUrl})")
+            var httpsUrl:String = ""
 
-            val httpsUrl = track.downloadUrl.replaceFirst("http", "https")
+            if (!track.downloadUrl.contains("https"))
+            {
+                httpsUrl = track.downloadUrl.replaceFirst("http", "https")
+            }else
+            {
+                httpsUrl = track.downloadUrl
+            }
 
             val durationMs = TimeUnit.SECONDS.toMillis(track.duration.toLong())
             id = track.dataId.toString()
@@ -346,18 +373,11 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
                     NeuLog.e("mediaItems()")
                 }.execute(t.albums)
 
-                for(album in t.albums)
+                albumListTemp = t.albums
+                if(albumListTemp.size > 0)
                 {
-                    xmlyMediaFactory.getTracks("${album.id}").whenComplete { t, u ->
-                        NeuLog.e("getTracks(${t.tracks})")
-                            UpdateTrackTask(glide) { mediaItems ->
-                           //     albumList = mediaItems
-                                catalog = mediaItems
-                                state = STATE_INITIALIZED
-                                NeuLog.e("mediaItems()")
-                            }.execute(t.tracks)
-                        }
-                    break;
+                    getTracksRecursion(xmlyMediaFactory, albumListTemp[0].id.toString())
+
                 }
 
 
@@ -373,6 +393,35 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 
 
         return mediaItems
+    }
+
+
+     fun getTracksRecursion(xmlyPlayer : XmlyMediaFactory, albumId: String) {
+
+        xmlyPlayer.getTracks("${albumId}").whenComplete { t,u ->
+            NeuLog.e("getTracks(${t.tracks})")
+            UpdateTrackTask(glide) { mediaItems ->
+                //     albumList = mediaItems
+                catalog += mediaItems
+                val mapItem: MutableMap<String, List<MediaMetadataCompat>> =
+                    LinkedHashMap()
+
+                mapItem.put(albumId.toString(), mediaItems)
+                albumMap += mapItem
+
+                curPos++
+                if(albumListTemp.size <= curPos)
+                {
+                    state = STATE_INITIALIZED
+                    curPos = 0
+                    NeuLog.e("mediaItems()")
+                }else
+                {
+                    getTracksRecursion(xmlyPlayer, albumListTemp[curPos].id.toString())
+                }
+
+            }.execute(t.tracks)
+        }
     }
 
 //    fun MediaMetadataCompat.Builder.from(albumTemp: Album): MediaMetadataCompat.Builder {
@@ -444,33 +493,6 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
                 displayIconUri = artUri
                 downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
 
-
-        // The duration from the JSON is given in seconds, but the rest of the code works in
-        // milliseconds. Here's where we convert to the proper units.
-//        val durationMs = TimeUnit.SECONDS.toMillis(jsonMusic.duration)
-//
-//        id = jsonMusic.id
-//        title = jsonMusic.title
-//        artist = jsonMusic.artist
-//        album = jsonMusic.album
-//        duration = durationMs
-//        genre = jsonMusic.genre
-//        mediaUri = jsonMusic.source
-//        albumArtUri = jsonMusic.image
-//        trackNumber = jsonMusic.trackNumber
-//        trackCount = jsonMusic.totalTrackCount
-//        flag = MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
-//
-//        // To make things easier for *displaying* these, set the display properties as well.
-//        displayTitle = jsonMusic.title
-//        displaySubtitle = jsonMusic.artist
-//        displayDescription = jsonMusic.album
-//        displayIconUri = jsonMusic.image
-//
-//        // Add downloadStatus to force the creation of an "extras" bundle in the resulting
-//        // MediaMetadataCompat object. This is needed to send accurate metadata to the
-//        // media session during updates.
-//        downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
 
         // Allow it to be used in the typical builder style.
         return this
