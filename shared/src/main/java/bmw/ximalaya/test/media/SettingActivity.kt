@@ -33,6 +33,7 @@ class SettingActivity : AppCompatActivity() {
     private lateinit var signInButton: Button
     private lateinit var singOutButton: Button
     private lateinit var qrCodeImageView: ImageView
+    private lateinit var backButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +49,12 @@ class SettingActivity : AppCompatActivity() {
         signInButton = findViewById(R.id.btn_signin)
         singOutButton = findViewById(R.id.btn_signout)
         qrCodeImageView = findViewById(R.id.img_qrcode)
+        backButton = findViewById(R.id.btn_back)
+
+        backButton.setOnClickListener(View.OnClickListener {
+            finish()
+        })
+
 
         signInButton.setOnClickListener(View.OnClickListener {
             createQrcodeAndCheck()
@@ -127,6 +134,10 @@ class SettingActivity : AppCompatActivity() {
 
             override fun onError(code: Int, message: String) {}
         })
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
     }
 }
 

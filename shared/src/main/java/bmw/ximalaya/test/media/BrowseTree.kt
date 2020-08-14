@@ -8,7 +8,11 @@ import com.bumptech.glide.Glide
 import bmw.ximalaya.test.extensions.NeuLog
 import bmw.ximalaya.test.extensions.XmlyMediaFactory
 
-class BrowseTree(context: Context, var musicSource: XmlyMusicSource, var xmlyMediaFactory: XmlyMediaFactory) {
+class BrowseTree(
+    context: Context,
+    var musicSource: XmlyMusicSource,
+    var xmlyMediaFactory: XmlyMediaFactory
+) {
 
     private val glide by lazy { Glide.with(context) }
     private val mediaIdToChildren = mutableMapOf<String, MutableList<MediaMetadataCompat>>(
@@ -53,18 +57,18 @@ class BrowseTree(context: Context, var musicSource: XmlyMusicSource, var xmlyMed
     fun init() {
         musicSource.load(xmlyMediaFactory)
         musicSource.whenReady {
-            if(it){
+            if (it) {
                 val sourceList = musicSource.map { it }
                 this[TINGYU_BROWSER_ROOT]?.add(
                     MediaMetadataCompat.Builder().apply {
                         id = "id_jdlg"
                         title = "经典老歌"
-                      //  artist = "周华健"
+                        //  artist = "周华健"
                         albumArtUri = sourceList[0].albumArtUri.toString()
                         flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
                     }.build()
                 )
-                mediaIdToChildren["id_jdlg"] = mutableListOf<MediaMetadataCompat>().apply{
+                mediaIdToChildren["id_jdlg"] = mutableListOf<MediaMetadataCompat>().apply {
                     this?.add(
                         MediaMetadataCompat.Builder().apply {
                             id = "id_jdlgex"
@@ -75,7 +79,7 @@ class BrowseTree(context: Context, var musicSource: XmlyMusicSource, var xmlyMed
                     )
                 }
 //                mediaIdToChildren["id_jdlg"] = mutableListOf<MediaMetadataCompat>().apply{addAll(sourceList)}
-                mediaIdToChildren["id_jdlgex"] = mutableListOf<MediaMetadataCompat>().apply{
+                mediaIdToChildren["id_jdlgex"] = mutableListOf<MediaMetadataCompat>().apply {
                     addAll(sourceList)
                 }
 
@@ -92,31 +96,28 @@ class BrowseTree(context: Context, var musicSource: XmlyMusicSource, var xmlyMed
 //                    }.build()
                 )
 
-                for (album in musicSource.albumList)
-                {
-                    mediaIdToChildren[album.id.toString()] = mutableListOf<MediaMetadataCompat>().apply{
-                        var blFind: Boolean = false
-                        for (map in musicSource.albumMap)
-                        {
-                            for ((key,value) in map) {
-                                if (key == album.id.toString())
-                                {
-                                    addAll(value)
-                                    blFind = true
+                for (album in musicSource.albumList) {
+                    mediaIdToChildren[album.id.toString()] =
+                        mutableListOf<MediaMetadataCompat>().apply {
+                            var blFind: Boolean = false
+                            for (map in musicSource.albumMap) {
+                                for ((key, value) in map) {
+                                    if (key == album.id.toString()) {
+                                        addAll(value)
+                                        blFind = true
+                                        break;
+                                    }
+                                }
+                                if (blFind) {
                                     break;
                                 }
                             }
-                            if (blFind)
-                            {
-                                break;
-                            }
                         }
-                    }
                 }
 //                mediaIdToChildren[musicSource.albumList[1].id.toString()] = mutableListOf<MediaMetadataCompat>().apply{
 //                    addAll(sourceList)
 //                }
-         //       this[TINGYU_HOME_ROOT]?.addAll(sourceList)
+                //       this[TINGYU_HOME_ROOT]?.addAll(sourceList)
                 this[TINGYU_RECENT_ROOT]?.addAll(sourceList)
                 this[TINGYU_LIBRARY_ROOT]?.addAll(sourceList)
             }

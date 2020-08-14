@@ -35,7 +35,7 @@ const val STATE_INITIALIZING = 2
 const val STATE_INITIALIZED = 3
 const val STATE_ERROR = 4
 
-class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
+class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
 
 
     private var subscriber: Disposable? = null
@@ -64,6 +64,7 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
                 field = value
             }
         }
+
     fun whenReady(performAction: (Boolean) -> Unit): Boolean =
         when (state) {
             STATE_CREATED, STATE_INITIALIZING -> {
@@ -75,7 +76,8 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
                 true
             }
         }
-    fun load(xmlyMediaFactory : XmlyMediaFactory) {
+
+    fun load(xmlyMediaFactory: XmlyMediaFactory) {
 //        subscriber?.apply {
 //            if(!isDisposed){
 //                dispose()
@@ -132,29 +134,30 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 //            })
     }
 
-    private class UpdateAlbumTask(val glide: RequestManager, val listener: (List<MediaMetadataCompat>) -> Unit) :
+    private class UpdateAlbumTask(
+        val glide: RequestManager,
+        val listener: (List<MediaMetadataCompat>) -> Unit
+    ) :
         AsyncTask<List<Album>, Void, List<MediaMetadataCompat>>() {
 
         override fun doInBackground(vararg params: List<Album>): List<MediaMetadataCompat> {
 
             val mediaItems = ArrayList<MediaMetadataCompat>()
-            if(params !=null) {
+            if (params != null) {
 
                 params.forEach { albums ->
 
                     mediaItems += albums.map { album ->
 
-                        var image:String = ""
+                        var image: String = ""
 
-                        if (!album.coverUrlLarge.contains("https"))
-                        {
+                        if (!album.coverUrlLarge.contains("https")) {
                             image = album.coverUrlLarge.replaceFirst("http", "https")
-                        }else
-                        {
+                        } else {
                             image = album.coverUrlLarge
                         }
 
-                  //      LijhLog.e("getTracks---(${album.coverUrlMiddle})")
+                        //      LijhLog.e("getTracks---(${album.coverUrlMiddle})")
                         val artUri = convertImageToUri(image, glide)
 
 
@@ -214,25 +217,26 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 
     }
 
-    private class UpdateTrackTask(val glide: RequestManager, val listener: (List<MediaMetadataCompat>) -> Unit) :
+    private class UpdateTrackTask(
+        val glide: RequestManager,
+        val listener: (List<MediaMetadataCompat>) -> Unit
+    ) :
         AsyncTask<List<Track>, Void, List<MediaMetadataCompat>>() {
 
         override fun doInBackground(vararg params: List<Track>): List<MediaMetadataCompat> {
 
             val mediaItems = ArrayList<MediaMetadataCompat>()
-            if(params !=null) {
+            if (params != null) {
 
                 params.forEach { tracks ->
 
                     mediaItems += tracks.map { track ->
 
-                        var image:String = ""
+                        var image: String = ""
 
-                        if (!track.coverUrlMiddle.contains("https"))
-                        {
+                        if (!track.coverUrlMiddle.contains("https")) {
                             image = track.coverUrlMiddle.replaceFirst("http", "https")
-                        }else
-                        {
+                        } else {
                             image = track.coverUrlMiddle
                         }
 
@@ -267,15 +271,13 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
         }
 
         fun MediaMetadataCompat.Builder.from(track: Track): MediaMetadataCompat.Builder {
-       //     val image = track.coverUrlMiddle
-         //   val artUri = convertImageToUri(image)
-            var httpsUrl:String = ""
+            //     val image = track.coverUrlMiddle
+            //   val artUri = convertImageToUri(image)
+            var httpsUrl: String = ""
 
-            if (!track.downloadUrl.contains("https"))
-            {
+            if (!track.downloadUrl.contains("https")) {
                 httpsUrl = track.downloadUrl.replaceFirst("http", "https")
-            }else
-            {
+            } else {
                 httpsUrl = track.downloadUrl
             }
 
@@ -289,13 +291,13 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
             duration = durationMs
             genre = "Electronic"
             mediaUri = httpsUrl
-       //    albumArtUri = artUri
+            //    albumArtUri = artUri
             trackNumber = track.orderNum.toLong()
             trackCount = 20
             displayTitle = track.trackTitle
             displaySubtitle = track.announcer.nickname
             displayDescription = track.album?.albumTitle
-          //  displayIconUri = artUri
+            //  displayIconUri = artUri
             downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
 
 
@@ -352,7 +354,7 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 
         xmlyMediaFactory.getAlbumList("0").whenComplete { t, u ->
             NeuLog.e("getAlbumList(${t})")
-            if(t !=null){
+            if (t != null) {
 //                t.albums?.filter{
 //                    //     LijhLog.e("albums(${it.albumTitle})")
 //                    it.albumTitle == "经典老歌"
@@ -368,26 +370,24 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 
                 UpdateAlbumTask(glide) { mediaItems ->
                     albumList = mediaItems
-               //     catalog = mediaItems
-                //    state = STATE_INITIALIZED
+                    //     catalog = mediaItems
+                    //    state = STATE_INITIALIZED
                     NeuLog.e("mediaItems()")
                 }.execute(t.albums)
 
                 albumListTemp = t.albums
-                if(albumListTemp.size > 0)
-                {
+                if (albumListTemp.size > 0) {
                     getTracksRecursion(xmlyMediaFactory, albumListTemp[0].id.toString())
 
                 }
 
 
-
                 //    albumList = mediaItems
-               //     catalog = mediaItems
+                //     catalog = mediaItems
 //                LijhLog.e("mediaItems()")
-             //       state = STATE_INITIALIZED
-            }else{
-                   state = STATE_ERROR
+                //       state = STATE_INITIALIZED
+            } else {
+                state = STATE_ERROR
             }
         }
 
@@ -396,9 +396,9 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
     }
 
 
-     fun getTracksRecursion(xmlyPlayer : XmlyMediaFactory, albumId: String) {
+    fun getTracksRecursion(xmlyPlayer: XmlyMediaFactory, albumId: String) {
 
-        xmlyPlayer.getTracks("${albumId}").whenComplete { t,u ->
+        xmlyPlayer.getTracks("${albumId}").whenComplete { t, u ->
             NeuLog.e("getTracks(${t.tracks})")
             UpdateTrackTask(glide) { mediaItems ->
                 //     albumList = mediaItems
@@ -410,13 +410,11 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
                 albumMap += mapItem
 
                 curPos++
-                if(albumListTemp.size <= curPos)
-                {
+                if (albumListTemp.size <= curPos) {
                     state = STATE_INITIALIZED
                     curPos = 0
                     NeuLog.e("mediaItems()")
-                }else
-                {
+                } else {
                     getTracksRecursion(xmlyPlayer, albumListTemp[curPos].id.toString())
                 }
 
@@ -472,33 +470,31 @@ class XmlyMusicSource(ctx:Context):Iterable<MediaMetadataCompat> {
 //    }
 
     fun MediaMetadataCompat.Builder.from(track: Track): MediaMetadataCompat.Builder {
-                val image = track.coverUrlMiddle
-                val artUri = convertImageToUri(image)
-                val durationMs = TimeUnit.SECONDS.toMillis(track.duration.toLong())
-                id = track.dataId.toString()
-                title = track.trackTitle
-                flag = MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
+        val image = track.coverUrlMiddle
+        val artUri = convertImageToUri(image)
+        val durationMs = TimeUnit.SECONDS.toMillis(track.duration.toLong())
+        id = track.dataId.toString()
+        title = track.trackTitle
+        flag = MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
 
-                artist = track.announcer.nickname
-                album = track.album?.albumTitle
-                duration = durationMs
-                genre = "Electronic"
-                mediaUri = track.downloadUrl
-                albumArtUri = artUri
-                trackNumber = track.orderNum.toLong()
-                trackCount = 20
-                displayTitle = track.trackTitle
-                displaySubtitle = track.announcer.nickname
-                displayDescription = track.album?.albumTitle
-                displayIconUri = artUri
-                downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
+        artist = track.announcer.nickname
+        album = track.album?.albumTitle
+        duration = durationMs
+        genre = "Electronic"
+        mediaUri = track.downloadUrl
+        albumArtUri = artUri
+        trackNumber = track.orderNum.toLong()
+        trackCount = 20
+        displayTitle = track.trackTitle
+        displaySubtitle = track.announcer.nickname
+        displayDescription = track.album?.albumTitle
+        displayIconUri = artUri
+        downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
 
 
         // Allow it to be used in the typical builder style.
         return this
     }
-
-
 
 
     override fun iterator(): Iterator<MediaMetadataCompat> = catalog.iterator()
