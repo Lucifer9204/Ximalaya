@@ -41,8 +41,8 @@ dependencies {
     api 'com.squareup.okhttp3:okhttp:3.11.0'
     // SDK联网框架使用okhttp
     api 'com.squareup.okio:okio:1.15.0'
-    //  implementation files('libs\\TingPhoneOpenSDK_7.2.2.jar')
-    implementation files('libs\\TingPhoneOpenSDK_7.0.16.jar')
+      implementation files('libs\\TingPhoneOpenSDK_7.2.2.jar')
+    //implementation files('libs\\TingPhoneOpenSDK_7.0.16.jar')
         implementation files('libs\\XmDownload_2.0.jar')
     //    implementation files('libs\\XmlyOAuth2SDK_V2.0.jar')
    // implementation files('libs/TingPhoneOpenSDK_7.0.16.jar')
