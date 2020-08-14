@@ -16,19 +16,13 @@
 
 package bmw.ximalaya.test.media
 
+//import bmw.ximalaya.test.media.AbstractMusicSource
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import bmw.ximalaya.test.media.album
-import bmw.ximalaya.test.media.id
-import bmw.ximalaya.test.media.toMediaSource
-import bmw.ximalaya.test.media.trackNumber
-//import bmw.ximalaya.test.media.AbstractMusicSource
-import bmw.ximalaya.test.media.XmlyMusicSource
 import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
@@ -92,7 +86,6 @@ class XmlyPlaybackPreparer(
             }
         }
     }
-
 
 
     /**

@@ -346,13 +346,14 @@ class MyMusicService : MediaBrowserServiceCompat() {
                         extras: Bundle?
                     ) {
                         NeuLog.e("$action")
+                        seekTo(goBackPosition())
                     }
 
                 },
                 object : MediaSessionConnector.CustomActionProvider {
                     override fun getCustomAction(player: Player): PlaybackStateCompat.CustomAction? {
                         val repeatBuilder = PlaybackStateCompat.CustomAction
-                            .Builder("n15s", "+15s", R.drawable.ic_recommended)
+                            .Builder("n15s", "+15s", R.drawable.ic_album)
                         return repeatBuilder.build()
                     }
 
@@ -363,6 +364,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
                         extras: Bundle?
                     ) {
                         NeuLog.e("$action")
+                        seekTo(goAheadPosition())
                     }
 
                 })
@@ -371,6 +373,26 @@ class MyMusicService : MediaBrowserServiceCompat() {
         }
 
         packageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
+    }
+
+
+
+    fun goAheadPosition(): Long {
+        return exoPlayer.contentPosition + 15000
+    }
+
+    fun goBackPosition(): Long {
+        return if (exoPlayer.contentPosition - 15000 < 0) {
+            0
+        } else
+            return (exoPlayer.contentPosition - 15000)
+    }
+
+    /**
+     * Seek to
+     */
+    fun seekTo(pos: Long) {
+        exoPlayer.seekTo(pos)
     }
 
     private fun createPlaybackState(@State state: Int): PlaybackStateCompat? {
