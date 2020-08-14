@@ -50,7 +50,7 @@ class SettingActivity : AppCompatActivity() {
         qrCodeImageView = findViewById(R.id.img_qrcode)
 
         signInButton.setOnClickListener(View.OnClickListener {
-           // createQrcodeAndCheck()
+            createQrcodeAndCheck()
             NeuLog.e()
         })
 
