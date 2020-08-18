@@ -23,6 +23,7 @@ import android.os.ResultReceiver
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import bmw.ximalaya.test.extensions.NeuLog
 import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
@@ -83,6 +84,10 @@ class XmlyPlaybackPreparer(
                 exoPlayer.prepare(mediaSource)
                 exoPlayer.seekTo(initialWindowIndex, 0)
                 exoPlayer.playWhenReady = playWhenReady
+
+                NeuLog.e("getTrackSelection"+(exoPlayer.currentTrackSelections))
+                NeuLog.e("getTrackGroup"+(exoPlayer.currentTrackGroups))
+
             }
         }
     }

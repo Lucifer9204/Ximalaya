@@ -16,11 +16,18 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application>
+
         <activity android:name=".SettingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.ximalaya.ting.android.opensdk.auth.component.XmlyBrowserComponent"
+            android:configChanges="keyboardHidden|orientation"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <meta-data
             android:name="com.google.android.gms.car.application"

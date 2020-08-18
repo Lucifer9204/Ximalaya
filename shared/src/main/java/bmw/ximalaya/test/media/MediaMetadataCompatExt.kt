@@ -24,6 +24,8 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistParserFactory
 import com.google.android.exoplayer2.upstream.DataSource
 
 /**
@@ -252,8 +254,10 @@ inline var MediaMetadataCompat.Builder.flag: Int
  *
  * For convenience, place the [MediaDescriptionCompat] into the tag so it can be retrieved later.
  */
+
 fun MediaMetadataCompat.toMediaSource(dataSourceFactory: DataSource.Factory) =
     ProgressiveMediaSource.Factory(dataSourceFactory)
+    //HlsMediaSource.Factory(p0: com.google.android.exoplayer2.upstream.DataSource.Factory)
         .setTag(fullDescription)
         .createMediaSource(mediaUri)
 

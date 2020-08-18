@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.ximalaya.ting.android.opensdk.datatrasfer.AccessTokenManager
 
 
 /**
@@ -116,9 +117,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
                     // button in the notification which stops playback and clears the notification.
                     if (playbackState == Player.STATE_READY) {
                         if (!playWhenReady) stopForeground(false)
-                        if (callback != null) {
-
-                        }
                     }
                 }
                 else -> {
@@ -161,116 +159,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
         }
     }
 
-    private val callback = object : MediaSessionCompat.Callback() {
-        override fun onPlay() {
-            NeuLog.e()
-            val playbackState = createPlaybackState(PlaybackStateCompat.STATE_PLAYING)
-            session.setPlaybackState(playbackState)
-            updatePlayingInfo()
-        }
-
-        override fun onSkipToQueueItem(queueId: Long) {
-            NeuLog.e()
-            val playbackState =
-                createPlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM)
-            session.setPlaybackState(playbackState)
-        }
-
-        override fun onSeekTo(position: Long) {
-            NeuLog.e()
-            val playbackState = createPlaybackState(PlaybackStateCompat.STATE_PLAYING)
-            session.setPlaybackState(playbackState)
-        }
-
-        override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
-            NeuLog.e("$mediaId")
-
-            val playbackState = createPlaybackState(PlaybackStateCompat.STATE_PLAYING)
-            session.setPlaybackState(playbackState)
-            updatePlayingInfo()
-        }
-
-        override fun onPause() {
-            NeuLog.e()
-            val playbackState = createPlaybackState(PlaybackStateCompat.STATE_PAUSED)
-
-            session.setPlaybackState(playbackState)
-            updatePlayingInfo()
-        }
-
-        override fun onStop() {
-            NeuLog.e()
-            val playbackState = createPlaybackState(PlaybackStateCompat.STATE_STOPPED)
-
-            session.setPlaybackState(playbackState)
-        }
-
-        override fun onSkipToNext() {
-            NeuLog.e()
-            val playbackState = createPlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT)
-
-            session.setPlaybackState(playbackState)
-        }
-
-        override fun onSkipToPrevious() {
-            NeuLog.e()
-            val playbackState = createPlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
-            session.setPlaybackState(playbackState)
-        }
-
-        override fun onCustomAction(action: String?, extras: Bundle?) {
-            NeuLog.e(action)
-            val playbackState = createPlaybackState(PlaybackStateCompat.STATE_PLAYING)
-            session.setPlaybackState(playbackState)
-
-            session.setQueue(
-                listOf(
-                    MediaSessionCompat.QueueItem(
-                        musicSource.iterator().next().description, 0
-                    )
-                )
-            )
-        }
-
-        override fun onPlayFromSearch(query: String?, extras: Bundle?) {
-            NeuLog.e()
-            val playbackState = createPlaybackState(PlaybackStateCompat.STATE_PLAYING)
-
-            session.setPlaybackState(playbackState)
-            updatePlayingInfo()
-        }
-    }
-
-    fun updatePlayingInfo() {
-        val song = musicSource.iterator().next()
-        val metadata = MediaMetadataCompat.Builder()
-            .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, song.displayTitle)
-            .putLong(MediaMetadata.METADATA_KEY_DURATION, 410)
-            .putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, 1)
-            .putLong(MediaMetadata.METADATA_KEY_NUM_TRACKS, 10)
-            .putString(MediaMetadata.METADATA_KEY_ARTIST, song.artist)
-            .putString(MediaMetadata.METADATA_KEY_ALBUM, song.album)
-            .putString(
-                MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI, song.albumArtUri.toString()
-            )
-            .putString(
-                MediaMetadata.METADATA_KEY_ALBUM_ART_URI,
-                song.albumArtUri.toString()
-            )
-            .putLong(EXTRA_IS_EXPLICIT, EXTRA_METADATA_ENABLED_VALUE)
-            .putLong(EXTRA_IS_DOWNLOADED, EXTRA_METADATA_ENABLED_VALUE)
-            .build()
-        session.setMetadata(metadata)
-        session.setQueueTitle("queue title")
-        session.setQueue(
-            listOf(
-                MediaSessionCompat.QueueItem(song.description, 0),
-                MediaSessionCompat.QueueItem(song.description, 2),
-                MediaSessionCompat.QueueItem(song.description, 3)
-            )
-        )
-    }
-
 
     /**
      * Returns a list of [MediaItem]s that match the given search query
@@ -292,6 +180,30 @@ class MyMusicService : MediaBrowserServiceCompat() {
         }
     }
 
+    fun isAlbumSelected(): Boolean {
+        var ret = false
+        for (item in musicSource.favoriteAlbumList) {
+            if (musicSource.currentAlbumId == item) {
+                ret = true
+                break
+            }
+        }
+        return ret
+    }
+
+    fun removeAlbumIdFromFavoriteAlbumList() {
+        for (item in musicSource.favoriteAlbumList) {
+            if (musicSource.currentAlbumId == item) {
+                musicSource.favoriteAlbumList = musicSource.favoriteAlbumList - item
+                break
+            }
+        }
+    }
+
+    fun addAlbumIdFromFavoriteAlbumList() {
+        musicSource.favoriteAlbumList = musicSource.favoriteAlbumList + musicSource.currentAlbumId
+    }
+
     override fun onCreate() {
         super.onCreate()
         NeuLog.e()
@@ -302,16 +214,10 @@ class MyMusicService : MediaBrowserServiceCompat() {
 
         session = MediaSessionCompat(this, "MyMusicService")
         sessionToken = session.sessionToken
-        session.setCallback(callback)
         session.setFlags(
             MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS or
                     MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
         )
-
-        val playbackState = createPlaybackState(PlaybackStateCompat.STATE_PLAYING)
-
-        session.setPlaybackState(playbackState)
-        session.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
 
 
         // ExoPlayer will manage the MediaSession for us.
@@ -320,6 +226,9 @@ class MyMusicService : MediaBrowserServiceCompat() {
             val dataSourceFactory = DefaultDataSourceFactory(
                 this, Util.getUserAgent(this, XMLY_USER_AGENT), null
             )
+
+//            val dataSourceFactory = DefaultExtractorsFactory()
+//            dataSourceFactory.setTsExtractorFlags(FLAG_DETECT_ACCESS_UNITS or FLAG_ALLOW_NON_IDR_KEYFRAMES)
 
             // Create the PlaybackPreparer of the media session connector.
             val playbackPreparer = XmlyPlaybackPreparer(
@@ -335,7 +244,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
                 object : MediaSessionConnector.CustomActionProvider {
                     override fun getCustomAction(player: Player): PlaybackStateCompat.CustomAction? {
                         val repeatBuilder = PlaybackStateCompat.CustomAction
-                            .Builder("p15s", "-15s", R.drawable.ic_recommended)
+                            .Builder("p15s", "-15s", R.drawable.ic_fast_rewind)
                         return repeatBuilder.build()
                     }
 
@@ -353,7 +262,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
                 object : MediaSessionConnector.CustomActionProvider {
                     override fun getCustomAction(player: Player): PlaybackStateCompat.CustomAction? {
                         val repeatBuilder = PlaybackStateCompat.CustomAction
-                            .Builder("n15s", "+15s", R.drawable.ic_album)
+                            .Builder("n15s", "+15s", R.drawable.ic_fast_forward)
                         return repeatBuilder.build()
                     }
 
@@ -367,6 +276,45 @@ class MyMusicService : MediaBrowserServiceCompat() {
                         seekTo(goAheadPosition())
                     }
 
+                },
+                object : MediaSessionConnector.CustomActionProvider {
+                    override fun getCustomAction(player: Player): PlaybackStateCompat.CustomAction? {
+                        NeuLog.e("musicSource.favoriteAlbumList:${musicSource.favoriteAlbumList}")
+                        NeuLog.e("musicSource.currentAlbumId:${musicSource.currentAlbumId}")
+                        var resource = R.drawable.ic_star_empty
+                        if (isAlbumSelected()) {
+                            resource = R.drawable.ic_star_filled
+                        }
+                        val favoriteBuilder = PlaybackStateCompat.CustomAction
+                            .Builder("bmw.ximalaya.test.media.FAVORITE", "favorite", resource)
+                        return favoriteBuilder.build()
+                    }
+
+                    override fun onCustomAction(
+                        player: Player,
+                        controlDispatcher: ControlDispatcher,
+                        action: String,
+                        extras: Bundle?
+                    ) {
+                        NeuLog.e("action:$action")
+                        NeuLog.e("uid:${AccessTokenManager.getInstanse().uid}")
+                        if (AccessTokenManager.getInstanse().uid == null || AccessTokenManager.getInstanse().uid.isEmpty()) {
+                            Toast.makeText(
+                                applicationContext,
+                                "Fail to add favorite,user not log in",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            if (isAlbumSelected()) {
+                                removeAlbumIdFromFavoriteAlbumList()
+                                musicSource.AddOrDelSubscribe(xmlyMediaFactory, 0)
+                            } else {
+                                addAlbumIdFromFavoriteAlbumList()
+                                musicSource.AddOrDelSubscribe(xmlyMediaFactory, 1)
+                            }
+                        }
+                    }
+
                 })
 
             connector.setQueueNavigator(XmlyQueueNavigator(session))
@@ -374,7 +322,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
 
         packageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
     }
-
 
 
     fun goAheadPosition(): Long {
@@ -395,33 +342,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
         exoPlayer.seekTo(pos)
     }
 
-    private fun createPlaybackState(@State state: Int): PlaybackStateCompat? {
-        val it = musicSource.iterator()
-        val extras = if (it.hasNext()) it.next().bundle else Bundle()
-        val playbackState = PlaybackStateCompat.Builder()
-            .setActions(getAvailableActions() or PlaybackStateCompat.ACTION_PLAY)
-            .setActiveQueueItemId(0)
-            .setBufferedPosition(20)
-            .addCustomAction("a", "a", R.drawable.ic_recommended)
-            .addCustomAction("c", "c", R.drawable.ic_recommended)
-            .addCustomAction("d", "d", R.drawable.ic_recommended)
-            .addCustomAction("e", "e", R.drawable.ic_recommended)
-            .addCustomAction(
-                PlaybackStateCompat.CustomAction.Builder(
-                    "b",
-                    "b",
-                    R.drawable.ic_album
-                ).build()
-            )
-            .setState(state, 0, 0f)
-            //            .setErrorMessage(
-            //                PlaybackStateCompat.ERROR_CODE_AUTHENTICATION_EXPIRED,
-            //                "Authentication required"
-            //            )
-            .setExtras(extras)
-            .build()
-        return playbackState
-    }
 
     override fun onDestroy() {
         NeuLog.e()
@@ -432,17 +352,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
         exoPlayer.release()
     }
 
-    fun getAvailableActions(): Long {
-        return PlaybackStateCompat.ACTION_PLAY_PAUSE or
-                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
-                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH or
-                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
-                PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
-                PlaybackStateCompat.ACTION_PLAY or
-                PlaybackStateCompat.ACTION_FAST_FORWARD or
-                PlaybackStateCompat.ACTION_PLAY_FROM_URI or
-                PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
-    }
 
     override fun onGetRoot(
         clientPackageName: String,
@@ -467,8 +376,10 @@ class MyMusicService : MediaBrowserServiceCompat() {
     override fun onLoadChildren(parentId: String, result: Result<List<MediaItem>>) {
         // Assume for example that the music catalog is already loaded/cached.
         NeuLog.e("$parentId $result")
+        musicSource.currentAlbumId = parentId
         val resultsSent = musicSource.whenReady {
             val children = browseTree[parentId]?.map { item ->
+                NeuLog.e("map item")
                 MediaItem(item.description, item.flag)
             }
             if (children?.isEmpty() != false) {
