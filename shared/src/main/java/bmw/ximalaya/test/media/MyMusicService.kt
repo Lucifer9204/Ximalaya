@@ -160,7 +160,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
     }
 
 
-
     /**
      * Returns a list of [MediaItem]s that match the given search query
      */
@@ -181,10 +180,10 @@ class MyMusicService : MediaBrowserServiceCompat() {
         }
     }
 
-    fun isAlbumSelected(): Boolean{
+    fun isAlbumSelected(): Boolean {
         var ret = false
         for (item in musicSource.favoriteAlbumList) {
-            if(musicSource.currentAlbumId == item){
+            if (musicSource.currentAlbumId == item) {
                 ret = true
                 break
             }
@@ -192,16 +191,16 @@ class MyMusicService : MediaBrowserServiceCompat() {
         return ret
     }
 
-    fun removeAlbumIdFromFavoriteAlbumList(){
+    fun removeAlbumIdFromFavoriteAlbumList() {
         for (item in musicSource.favoriteAlbumList) {
-            if(musicSource.currentAlbumId == item){
+            if (musicSource.currentAlbumId == item) {
                 musicSource.favoriteAlbumList = musicSource.favoriteAlbumList - item
                 break
             }
         }
     }
 
-    fun addAlbumIdFromFavoriteAlbumList(){
+    fun addAlbumIdFromFavoriteAlbumList() {
         musicSource.favoriteAlbumList = musicSource.favoriteAlbumList + musicSource.currentAlbumId
     }
 
@@ -215,12 +214,10 @@ class MyMusicService : MediaBrowserServiceCompat() {
 
         session = MediaSessionCompat(this, "MyMusicService")
         sessionToken = session.sessionToken
-        //session.setCallback(callback)
         session.setFlags(
             MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS or
                     MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
         )
-
 
 
         // ExoPlayer will manage the MediaSession for us.
@@ -229,8 +226,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
             val dataSourceFactory = DefaultDataSourceFactory(
                 this, Util.getUserAgent(this, XMLY_USER_AGENT), null
             )
-
-          /*  val dataSourceFactory = DefaultHlsPlaylistParserFactory()*/
 
 //            val dataSourceFactory = DefaultExtractorsFactory()
 //            dataSourceFactory.setTsExtractorFlags(FLAG_DETECT_ACCESS_UNITS or FLAG_ALLOW_NON_IDR_KEYFRAMES)
@@ -287,7 +282,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
                         NeuLog.e("musicSource.favoriteAlbumList:${musicSource.favoriteAlbumList}")
                         NeuLog.e("musicSource.currentAlbumId:${musicSource.currentAlbumId}")
                         var resource = R.drawable.ic_star_empty
-                        if(isAlbumSelected()){
+                        if (isAlbumSelected()) {
                             resource = R.drawable.ic_star_filled
                         }
                         val favoriteBuilder = PlaybackStateCompat.CustomAction
@@ -303,19 +298,19 @@ class MyMusicService : MediaBrowserServiceCompat() {
                     ) {
                         NeuLog.e("action:$action")
                         NeuLog.e("uid:${AccessTokenManager.getInstanse().uid}")
-                        if(AccessTokenManager.getInstanse().uid == null || AccessTokenManager.getInstanse().uid.isEmpty()) {
+                        if (AccessTokenManager.getInstanse().uid == null || AccessTokenManager.getInstanse().uid.isEmpty()) {
                             Toast.makeText(
                                 applicationContext,
                                 "Fail to add favorite,user not log in",
                                 Toast.LENGTH_LONG
                             ).show()
-                        }else{
-                            if(isAlbumSelected()){
+                        } else {
+                            if (isAlbumSelected()) {
                                 removeAlbumIdFromFavoriteAlbumList()
-                                musicSource.AddOrDelSubscribe(xmlyMediaFactory,0)
-                            }else{
+                                musicSource.AddOrDelSubscribe(xmlyMediaFactory, 0)
+                            } else {
                                 addAlbumIdFromFavoriteAlbumList()
-                                musicSource.AddOrDelSubscribe(xmlyMediaFactory,1)
+                                musicSource.AddOrDelSubscribe(xmlyMediaFactory, 1)
                             }
                         }
                     }
@@ -327,7 +322,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
 
         packageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
     }
-
 
 
     fun goAheadPosition(): Long {
@@ -349,7 +343,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
     }
 
 
-
     override fun onDestroy() {
         NeuLog.e()
         session.release()
@@ -358,7 +351,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
         exoPlayer.removeListener(playerListener)
         exoPlayer.release()
     }
-
 
 
     override fun onGetRoot(

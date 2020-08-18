@@ -100,8 +100,8 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
 
         getCategoryMediaMetadataCompats(xmlyMediaFactory)
         //getAlbumMediaMetadataCompats(xmlyMediaFactory)
-       NeuLog.e("[Infor]getAllFavoriteAlbumId start")
-       getAllFavoriteAlbumId(xmlyMediaFactory)
+        NeuLog.e("[Infor]getAllFavoriteAlbumId start")
+        getAllFavoriteAlbumId(xmlyMediaFactory)
 
 //        getAlbumMediaMetadataCompats(xmlyPlayer)
 
@@ -156,26 +156,18 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
         AsyncTask<List<Album>, Void, List<MediaMetadataCompat>>() {
 
         override fun doInBackground(vararg params: List<Album>): List<MediaMetadataCompat> {
-           // NeuLog.e("getAlbumMediaMetadataCompats doInBackground")
+            // NeuLog.e("getAlbumMediaMetadataCompats doInBackground")
             val mediaItems = ArrayList<MediaMetadataCompat>()
             if (params != null) {
-
                 params.forEach { albums ->
-
                     mediaItems += albums.map { album ->
-
                         var image: String = ""
-
                         if (!album.coverUrlLarge.contains("https")) {
                             image = album.coverUrlLarge.replaceFirst("http", "https")
                         } else {
                             image = album.coverUrlLarge
                         }
-
-                        //      LijhLog.e("getTracks---(${album.coverUrlMiddle})")
                         val artUri = convertImageToUri(image, glide)
-
-
 //                        val art = glide.applyDefaultRequestOptions(glideOptions)
 //                            .asBitmap()
 //                            .load(image)
@@ -202,10 +194,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
         }
 
         fun MediaMetadataCompat.Builder.from(albumTemp: Album): MediaMetadataCompat.Builder {
-
             //     val image = albumTemp.coverUrlSmall
-
-
             //    val artUri = convertImageToUri(image)
             id = albumTemp.id.toString()
             title = albumTemp.albumTitle
@@ -213,7 +202,6 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
             //    albumArtUri = artUri
             downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
             //NeuLog.e("getTracks(${albumTemp.coverUrlSmall})")
-
             return this
         }
 
@@ -237,27 +225,19 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
         val listener: (List<MediaMetadataCompat>) -> Unit
     ) :
         AsyncTask<List<Track>, Void, List<MediaMetadataCompat>>() {
-
         override fun doInBackground(vararg params: List<Track>): List<MediaMetadataCompat> {
-
             val mediaItems = ArrayList<MediaMetadataCompat>()
             if (params != null) {
-
                 params.forEach { tracks ->
-
                     mediaItems += tracks.map { track ->
-
-                       // NeuLog.e("getTracks(${track.trackTitle})")
-
+                        // NeuLog.e("getTracks(${track.trackTitle})")
                         var image: String = ""
-
                         if (!track.coverUrlMiddle.contains("https")) {
                             image = track.coverUrlMiddle.replaceFirst("http", "https")
                         } else {
                             image = track.coverUrlMiddle
                         }
-
-                        //      LijhLog.e("getTracks---(${album.coverUrlMiddle})")
+                        //      NeuLog.e("getTracks---(${album.coverUrlMiddle})")
                         val artUri = convertImageToUri(image, glide)
 
 
@@ -390,7 +370,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
                             image = category.coverUrlMiddle
                         }
 
-                        //      LijhLog.e("getTracks---(${album.coverUrlMiddle})")
+                        //      NeuLog.e("getTracks---(${album.coverUrlMiddle})")
                         val artUri = convertImageToUri(image, glide)
 
 
@@ -452,21 +432,21 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
 
     fun getAlbumMediaMetadataCompats(xmlyMediaFactory: XmlyMediaFactory): List<MediaMetadataCompat> {
         val mediaItems = ArrayList<MediaMetadataCompat>()
-       // NeuLog.e("getAlbumMediaMetadataCompats")
+        // NeuLog.e("getAlbumMediaMetadataCompats")
         //   val artUriE = convertImageToUri("http://imagev2.xmcdn.com/group74/M08/F7/E5/wKgO3F6ZKlyTkqKqAAMEKEhOSIw777.jpg!op_type=5&upload_type=album&device_type=ios&name=mobile_small&magick=png")
 
         xmlyMediaFactory.getAlbumList("0").whenComplete { t, u ->
-           // NeuLog.e("getAlbumMediaMetadataCompats getAlbumList(${t})")
+            // NeuLog.e("getAlbumMediaMetadataCompats getAlbumList(${t})")
             if (t != null) {
 
                 UpdateAlbumTask(glide) { mediaItems ->
-                   // NeuLog.e("getAlbumMediaMetadataCompats  mediaItems ->")
+                    // NeuLog.e("getAlbumMediaMetadataCompats  mediaItems ->")
                     albumList = mediaItems
                     //     catalog = mediaItems
                     //    state = STATE_INITIALIZED
                     NeuLog.e("mediaItems()")
                 }.execute(t.albums)
-               // NeuLog.e("getAlbumMediaMetadataCompats  mediaItems -> end")
+                // NeuLog.e("getAlbumMediaMetadataCompats  mediaItems -> end")
                 albumListTemp = t.albums
                 if (albumListTemp.size > 0) {
                     getTracksRecursion(xmlyMediaFactory, albumListTemp[0].id.toString())
@@ -476,14 +456,14 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
 
                 //    albumList = mediaItems
                 //     catalog = mediaItems
-//                LijhLog.e("mediaItems()")
+//                NeuLog.e("mediaItems()")
                 //       state = STATE_INITIALIZED
             } else {
                 state = STATE_ERROR
             }
         }
 
-       // NeuLog.e("getAlbumMediaMetadataCompats return mediaItems")
+        // NeuLog.e("getAlbumMediaMetadataCompats return mediaItems")
         return mediaItems
     }
 
@@ -492,7 +472,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
         if (AccessTokenManager.getInstanse().uid != null && AccessTokenManager.getInstanse().uid.isNotEmpty()) {
             NeuLog.e("[Infor]getAlbumByUid uid is ${AccessTokenManager.getInstanse().uid})")
             xmlyPlayer.getAlbumByUid(AccessTokenManager.getInstanse().uid).whenComplete { t, u ->
-               // NeuLog.e("[Infor]getAlbumByUid done(${t.albums})")
+                // NeuLog.e("[Infor]getAlbumByUid done(${t.albums})")
                 for (item in t.albums) {
                     favoriteAlbumList = favoriteAlbumList + item.id.toString()
                 }
@@ -520,8 +500,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
             albumListTemp += t.albums
             //   NeuLog.e("getTracks(${t.tracks})")
             UpdateAlbumTask(glide) { mediaItems ->
-                if(categoryId == "0")
-                {
+                if (categoryId == "0") {
                     albumList = mediaItems;
                 }
 
@@ -540,7 +519,10 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
                     }
                     //    NeuLog.e("mediaItems()")
                 } else {
-                    getAlbumRecursion(xmlyMediaFactory, categoriesListTemp[curPosCategory].id.toString())
+                    getAlbumRecursion(
+                        xmlyMediaFactory,
+                        categoriesListTemp[curPosCategory].id.toString()
+                    )
                 }
 
             }.execute(t.albums)
@@ -585,7 +567,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
 //        flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
 //        //    albumArtUri = artUri
 //        downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
-//        LijhLog.e("getTracks(${albumTemp.coverUrlSmall})")
+//        NeuLog.e("getTracks(${albumTemp.coverUrlSmall})")
 //
 //
 //        return this
@@ -665,17 +647,16 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
                 UpdateCategoryTask(glide) { mediaItems ->
                     categoriesList = mediaItems
                     //     catalog = mediaItems
-                   // NeuLog.e("mediaItems()")
+                    // NeuLog.e("mediaItems()")
                 }.execute(categoriesListTemp)
 
                 if (categoriesListTemp.size > 0) {
                     getAlbumRecursion(xmlyMediaFactory, categoriesListTemp[0].id.toString())
                 }
 
-
                 //    albumList = mediaItems
                 //     catalog = mediaItems
-//                LijhLog.e("mediaItems()")
+//                NeuLog.e("mediaItems()")
                 //       state = STATE_INITIALIZED
             } else {
                 state = STATE_ERROR
