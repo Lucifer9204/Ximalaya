@@ -53,6 +53,12 @@ dependencies {
     implementation group: 'io.reactivex.rxjava2', name: 'rxjava', version: '2.2.19'
     implementation group: 'io.reactivex.rxjava2', name: 'rxandroid', version: '2.1.1'
 
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.X.X'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.X.X'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.X.X'
+    implementation 'com.google.android.exoplayer:exoplayer-smoothstreaming:2.X.X'
+
     // ExoPlayer dependencies
 
     // This allows UAMP to utilize a local version of ExoPlayer, which is particularly
@@ -62,10 +68,16 @@ dependencies {
     if (findProject(':exoplayer-library-core') != null) {
         api project(':exoplayer-library-core')
         api project(':exoplayer-library-ui')
+        api project(':exoplayer-library-dash')
+        api project(':exoplayer-library-hls')
+        api project(':exoplayer-library-smoothstreaming')
         api project(':exoplayer-extension-mediasession')
    } else {
         api "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
         api "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
+        api "com.google.android.exoplayer:exoplayer-dash:$exoplayer_version"
+        api "com.google.android.exoplayer:exoplayer-hls:$exoplayer_version"
+        api "com.google.android.exoplayer:exoplayer-smoothstreaming:$exoplayer_version"
         api "com.google.android.exoplayer:extension-mediasession:$exoplayer_version"
    }
 

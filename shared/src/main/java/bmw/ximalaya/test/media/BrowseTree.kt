@@ -59,28 +59,50 @@ class BrowseTree(
         musicSource.whenReady {
             if (it) {
                 val sourceList = musicSource.map { it }
-                this[TINGYU_BROWSER_ROOT]?.add(
-                    MediaMetadataCompat.Builder().apply {
-                        id = "id_jdlg"
-                        title = "经典老歌"
-                        //  artist = "周华健"
-                        albumArtUri = sourceList[0].albumArtUri.toString()
-                        flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
-                    }.build()
+                this[TINGYU_BROWSER_ROOT]?.addAll(
+                    musicSource.categoriesList.subList(0, musicSource.categoriesList.size - 1)
                 )
-                mediaIdToChildren["id_jdlg"] = mutableListOf<MediaMetadataCompat>().apply {
-                    this?.add(
-                        MediaMetadataCompat.Builder().apply {
-                            id = "id_jdlgex"
-                            title = "热门歌曲"
-                            albumArtUri = sourceList[0].albumArtUri.toString()
-                            flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
-                        }.build()
-                    )
+
+                for (category in musicSource.categoriesList) {
+                    if (category.id.toString() == "0")
+                    {
+                        continue
+                    }
+                    mediaIdToChildren[category.id.toString()] =
+                        mutableListOf<MediaMetadataCompat>().apply {
+                            var blFind: Boolean = false
+                            for (map in musicSource.categoryMap) {
+                                for ((key, value) in map) {
+                                    if (key == category.id.toString()) {
+                                        addAll(value)
+                                        blFind = true
+                                        break;
+                                    }
+                                }
+                                if (blFind) {
+                                    break;
+                                }
+                            }
+                        }
                 }
-//                mediaIdToChildren["id_jdlg"] = mutableListOf<MediaMetadataCompat>().apply{addAll(sourceList)}
-                mediaIdToChildren["id_jdlgex"] = mutableListOf<MediaMetadataCompat>().apply {
-                    addAll(sourceList)
+
+                for (album in musicSource.albumListTemp) {
+                    mediaIdToChildren[album.id.toString()] =
+                        mutableListOf<MediaMetadataCompat>().apply {
+                            var blFind: Boolean = false
+                            for (map in musicSource.albumMap) {
+                                for ((key, value) in map) {
+                                    if (key == album.id.toString()) {
+                                        addAll(value)
+                                        blFind = true
+                                        break;
+                                    }
+                                }
+                                if (blFind) {
+                                    break;
+                                }
+                            }
+                        }
                 }
 
                 NeuLog.e("mediaItems(${musicSource.albumList})")
@@ -114,12 +136,32 @@ class BrowseTree(
                             }
                         }
                 }
+
 //                mediaIdToChildren[musicSource.albumList[1].id.toString()] = mutableListOf<MediaMetadataCompat>().apply{
 //                    addAll(sourceList)
 //                }
-                //       this[TINGYU_HOME_ROOT]?.addAll(sourceList)
+        //        this[TINGYU_HOME_ROOT]?.addAll(sourceList)
                 this[TINGYU_RECENT_ROOT]?.addAll(sourceList)
-                this[TINGYU_LIBRARY_ROOT]?.addAll(sourceList)
+                //this[TINGYU_LIBRARY_ROOT]?.addAll(sourceList)
+                NeuLog.e("[Infor]TINGYU_LIBRARY_ROOT add start")
+                for(item in musicSource.albumList){
+                    NeuLog.e("[Infor]TINGYU_LIBRARY_ROOT->sourcelist=${item.id}")
+                    for(favItem in musicSource.favoriteAlbumList){
+                        if(favItem == item.id.toString()) {
+                            NeuLog.e("[Infor]TINGYU_LIBRARY_ROOT add success albumid[${favItem}] icon:${item.albumArtUri.path}")
+                            this[TINGYU_LIBRARY_ROOT]?.add(
+                                MediaMetadataCompat.Builder().apply {
+                                    id = item.id.toString()
+                                    title = item.title
+                                    artist = item.albumArtist
+                                    albumArtUri = item.albumArtUri.path
+                                    flag = MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
+                                }.build()
+                            )
+                            break
+                        }
+                    }
+                }
             }
         }
     }

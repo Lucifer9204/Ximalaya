@@ -86,6 +86,7 @@ class SettingActivity : AppCompatActivity() {
                                 mutableMapOf(Pair("qrcode_id", q)),
                                 object : IDataCallBack<XmlyAuth2AccessToken?> {
                                     override fun onSuccess(objects: XmlyAuth2AccessToken?) {
+                                        NeuLog.e("onSuccess:${objects}")
                                         if (objects != null) {
 
                                             AccessTokenManager.getInstanse().setAccessTokenAndUid(
@@ -95,6 +96,7 @@ class SettingActivity : AppCompatActivity() {
                                                 objects.uid
                                             )
                                             countDownTimer?.cancel()
+
                                         }
                                     }
 
@@ -102,6 +104,8 @@ class SettingActivity : AppCompatActivity() {
                                         code: Int,
                                         message: String
                                     ) {
+                                        NeuLog.e("${code}")
+                                        NeuLog.e("${message}")
                                         if (code == 207) {
                                             NeuLog.e(TAG, "Client is not logged in")
 

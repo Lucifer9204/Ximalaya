@@ -24,6 +24,8 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistParserFactory
 import com.google.android.exoplayer2.upstream.DataSource
 
 /**
@@ -252,11 +254,28 @@ inline var MediaMetadataCompat.Builder.flag: Int
  *
  * For convenience, place the [MediaDescriptionCompat] into the tag so it can be retrieved later.
  */
+
 fun MediaMetadataCompat.toMediaSource(dataSourceFactory: DataSource.Factory) =
     ProgressiveMediaSource.Factory(dataSourceFactory)
+    //HlsMediaSource.Factory(p0: com.google.android.exoplayer2.upstream.DataSource.Factory)
         .setTag(fullDescription)
         .createMediaSource(mediaUri)
 
+/*private fun buildMediaSource(
+    uri: Uri,
+    overrideExtension: String
+): MediaSource? {
+    ContentType val type: Int = Util.inferContentType(uri, overrideExtension)
+    return when (type) {
+        C.TYPE_DASH -> DashMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
+        C.TYPE_SS -> Factory(dataSourceFactory).createMediaSource(uri)
+        C.TYPE_HLS -> HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
+        C.TYPE_OTHER -> //                return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+
+            ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
+        else -> throw IllegalStateException("Unsupported type: $type")
+    }
+}*/
 /**
  * Extension method for building a [ConcatenatingMediaSource] given a [List]
  * of [MediaMetadataCompat] objects.
