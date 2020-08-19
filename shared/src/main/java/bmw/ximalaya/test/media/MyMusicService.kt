@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.ximalaya.ting.android.opensdk.datatrasfer.AccessTokenManager
 import com.ximalaya.ting.android.opensdk.datatrasfer.CommonRequest
@@ -39,7 +40,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
      */
     private val exoPlayer: ExoPlayer by lazy {
         SimpleExoPlayer.Builder(this).build().apply {
-            setAudioAttributes(xMLYAudioAttributes, true)
+            setAudioAttributes(AudioAttributes.DEFAULT/*xMLYAudioAttributes*/, true)
             setHandleAudioBecomingNoisy(true)
             addListener(playerListener)
         }
@@ -219,19 +220,30 @@ AppDataStore.newInstance()
         sessionToken = session.sessionToken
         session.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS)
         session.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
-        
+
         // ExoPlayer will manage the MediaSession for us.
         mediaSessionConnector = MediaSessionConnector(session).also { connector ->
             // Produces DataSource instances through which media data is loaded.
-            val dataSourceFactory = DefaultDataSourceFactory(
-                this, Util.getUserAgent(this, XMLY_USER_AGENT), null
+            //val dataSourceFactory = DefaultDataSourceFactory(
+            //    this, Util.getUserAgent(this, XMLY_USER_AGENT), null
+            //)
+
+            val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, XMLY_USER_AGENT))
+
+            val dataHttpSourceFactory = DefaultHttpDataSourceFactory(
+                Util.getUserAgent(this, XMLY_USER_AGENT)
             )
+
+
+//            val dataSourceFactory = DefaultExtractorsFactory()
+//            dataSourceFactory.setTsExtractorFlags(FLAG_DETECT_ACCESS_UNITS or FLAG_ALLOW_NON_IDR_KEYFRAMES)
 
             // Create the PlaybackPreparer of the media session connector.
             val playbackPreparer = XmlyPlaybackPreparer(
                 musicSource,
                 exoPlayer,
-                dataSourceFactory
+                dataSourceFactory,
+                dataHttpSourceFactory
             )
 
             connector.setPlayer(exoPlayer)
