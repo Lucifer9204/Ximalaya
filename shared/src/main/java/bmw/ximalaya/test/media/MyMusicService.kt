@@ -219,9 +219,7 @@ AppDataStore.newInstance()
         sessionToken = session.sessionToken
         session.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS)
         session.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
-
-
-
+        
         // ExoPlayer will manage the MediaSession for us.
         mediaSessionConnector = MediaSessionConnector(session).also { connector ->
             // Produces DataSource instances through which media data is loaded.
