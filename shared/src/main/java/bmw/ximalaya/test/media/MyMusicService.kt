@@ -49,8 +49,8 @@ class MyMusicService : MediaBrowserServiceCompat() {
         XmlyMediaFactory(this)
     }
 
-    private lateinit var session: MediaSessionCompat
-    private lateinit var mediaSessionConnector: MediaSessionConnector
+    protected lateinit var session: MediaSessionCompat
+    protected lateinit var mediaSessionConnector: MediaSessionConnector
     private val musicSource by lazy { XmlyMusicSource(this) }
     private val browseTree: BrowseTree by lazy {
         BrowseTree(applicationContext, musicSource, xmlyMediaFactory)
@@ -218,6 +218,9 @@ AppDataStore.newInstance()
         session = MediaSessionCompat(this, "MyMusicService")
         sessionToken = session.sessionToken
         session.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS)
+        session.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
+
+
 
         // ExoPlayer will manage the MediaSession for us.
         mediaSessionConnector = MediaSessionConnector(session).also { connector ->
@@ -315,6 +318,7 @@ AppDataStore.newInstance()
 
             connector.setQueueNavigator(XmlyQueueNavigator(session))
         }
+
 
         packageValidator = PackageValidator(this, R.xml.allowed_media_browser_callers)
     }
