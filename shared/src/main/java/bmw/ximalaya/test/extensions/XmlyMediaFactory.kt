@@ -10,6 +10,7 @@ import com.ximalaya.ting.android.opensdk.model.PostResponse
 import com.ximalaya.ting.android.opensdk.model.album.AlbumList
 import com.ximalaya.ting.android.opensdk.model.album.SubscribeAlbumList
 import com.ximalaya.ting.android.opensdk.model.category.CategoryList
+import com.ximalaya.ting.android.opensdk.model.live.radio.RadioList
 import com.ximalaya.ting.android.opensdk.model.track.TrackList
 import com.ximalaya.ting.android.opensdk.player.XmPlayerManager
 import java.util.concurrent.CompletableFuture
@@ -47,9 +48,9 @@ class XmlyMediaFactory(ctx: Context) {
 
         config.proxyHost = "172.30.50.10"
         config.proxyPort = 8080
-        config.connectionTimeOut = 3000
-        config.readTimeOut = 3000
-        config.writeTimeOut = 3000
+        config.connectionTimeOut = 9000
+        config.readTimeOut = 9000
+        config.writeTimeOut = 9000
         CommonRequest.getInstanse().httpConfig = config
         mXmPlayerManager.init()
 
@@ -65,6 +66,21 @@ class XmlyMediaFactory(ctx: Context) {
         val future = CompletableFuture<TrackList>()
         (CommonRequest::getTracks)(specificParams, object: IDataCallBack<TrackList>{
             override fun onSuccess(p0: TrackList?) {
+                future.complete(p0)
+            }
+
+            override fun onError(p0: Int, p1: String?) {
+                future.completeExceptionally(Exception(p1))
+            }
+        })
+        return future
+    }
+    
+     fun getRadios(): CompletableFuture<RadioList> {
+        val specificParams:MutableMap<String, String> = mutableMapOf(Pair(DTransferConstants.RADIOTYPE, "3"))
+        val future = CompletableFuture<RadioList>()
+        (CommonRequest::getRadios)(specificParams, object: IDataCallBack<RadioList>{
+            override fun onSuccess(p0: RadioList?) {
                 future.complete(p0)
             }
 

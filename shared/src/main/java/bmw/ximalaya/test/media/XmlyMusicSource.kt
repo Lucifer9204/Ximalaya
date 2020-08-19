@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.ximalaya.ting.android.opensdk.model.album.Album
 import com.ximalaya.ting.android.opensdk.model.category.Category
+import com.ximalaya.ting.android.opensdk.model.live.radio.Radio
 import com.ximalaya.ting.android.opensdk.model.track.Track
 import bmw.ximalaya.test.extensions.NeuLog
 import bmw.ximalaya.test.extensions.XmlyMediaFactory
@@ -57,6 +58,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
     var currentAlbumId = ""
 
     var albumMap: List<MutableMap<String, List<MediaMetadataCompat>>> = emptyList()
+    private val radioPic : String = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1250966952,2439095461&fm=26&gp=0.jpg"
 
     @State
     var state: Int = STATE_CREATED
@@ -214,6 +216,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
             mediaUri = httpsUrl
             //mediaUri = "https://live.xmcdn.com/live/1427/64.m3u8?transcode=ts"
             //mediaUri = "https://live.xmcdn.com/live/764/24.m3u8"
+            //mediaUri = "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear0/prog_index.m3u8"
             //albumArtUri = artUri
             trackNumber = track.orderNum.toLong()
             trackCount = 20
@@ -356,18 +359,30 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
     private fun getAlbumRecursion(xmlyMediaFactory: XmlyMediaFactory, categoryId: String) {
 
         xmlyMediaFactory.getAlbumList(categoryId).whenComplete { t, _ ->
-            albumListTemp = albumListTemp + t.albums
+            var albumListTypeTemp: List<Album> = emptyList()
+            if (categoryId == "0") {
+                var radioAlbum = Album();
+                radioAlbum.id = -100;
+                radioAlbum.albumTitle = "电台"
+                radioAlbum.coverUrlLarge = radioPic
+                albumListTypeTemp += radioAlbum
+                albumListTypeTemp += t.albums
+            }
+            else{
+                albumListTypeTemp += t.albums
+            }
+            albumListTemp += t.albums
             //   NeuLog.e("getTracks(${t.tracks})")
             UpdateAlbumTask(glide) { mediaItems ->
                 if (categoryId == "0") {
-                    albumList = mediaItems
+                    albumList += mediaItems
                 }
 
                 val mapItem: MutableMap<String, List<MediaMetadataCompat>> =
                     LinkedHashMap()
 
-                mapItem[categoryId] = mediaItems
-                categoryMap = categoryMap + mapItem
+                mapItem.put(categoryId, mediaItems)
+                categoryMap += mapItem
 
                 curPosCategory++
                 if (categoriesListTemp.size <= curPosCategory) {
@@ -384,7 +399,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
                     )
                 }
 
-            }.execute(t.albums)
+            }.execute(albumListTypeTemp)
         }
     }
 
@@ -395,18 +410,35 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
             //NeuLog.e("getTracks(${t.tracks})")
             UpdateTrackTask(glide) { mediaItems ->
                 //     albumList = mediaItems
-                catalog = catalog + mediaItems
+                catalog += mediaItems
                 val mapItem: MutableMap<String, List<MediaMetadataCompat>> =
                     LinkedHashMap()
 
-                mapItem[albumId] = mediaItems
-                albumMap = albumMap + mapItem
+                mapItem.put(albumId.toString(), mediaItems)
+                albumMap += mapItem
 
                 curPos++
                 if (albumListTemp.size <= curPos) {
-                    state = STATE_INITIALIZED
                     curPos = 0
-                    //NeuLog.e("mediaItems()")
+                    //获取电台
+                    xmlyMediaFactory.getRadios().whenComplete { t, u ->
+                        UpdateRadioTask(glide) { mediaItems ->
+
+                       //     albumList.add(0, radioAlbum)
+
+                            //     albumList = mediaItems
+                            catalog += mediaItems
+                            val mapItem: MutableMap<String, List<MediaMetadataCompat>> =
+                                LinkedHashMap()
+
+                            mapItem.put("-100", mediaItems)
+                            albumMap += mapItem
+
+                            state = STATE_INITIALIZED
+                        }.execute(t.radios)
+                    }
+
+                    NeuLog.e("mediaItems()")
                 } else {
                     getTracksRecursion(xmlyMediaFactory, albumListTemp[curPos].id.toString())
                 }
@@ -415,6 +447,108 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
         }
     }
 
+    private class UpdateRadioTask(
+        val glide: RequestManager,
+        val listener: (List<MediaMetadataCompat>) -> Unit
+    ) :
+        AsyncTask<List<Radio>, Void, List<MediaMetadataCompat>>() {
+
+        override fun doInBackground(vararg params: List<Radio>): List<MediaMetadataCompat> {
+
+            val mediaItems = ArrayList<MediaMetadataCompat>()
+            if (params != null) {
+
+                params.forEach { radios ->
+
+                    mediaItems += radios.map { radio ->
+
+                 //       NeuLog.e("getTracks(${radio.radioName})")
+
+                        var image: String = ""
+
+                        if (!radio.coverUrlLarge.contains("https")) {
+                            image = radio.coverUrlLarge.replaceFirst("http", "https")
+                        } else {
+                            image = radio.coverUrlLarge
+                        }
+
+                        //      LijhLog.e("getTracks---(${album.coverUrlMiddle})")
+                        val artUri = convertImageToUri(image, glide)
+
+
+//                        val art = glide.applyDefaultRequestOptions(glideOptions)
+//                            .asBitmap()
+//                            .load(image)
+//                            .submit(NOTIFICATION_LARGE_ICON_SIZE, NOTIFICATION_LARGE_ICON_SIZE)
+//                            .get()
+
+                        MediaMetadataCompat.Builder()
+                            .from(radio)
+                            .apply {
+                                albumArtUri = artUri
+                                displayIconUri = artUri
+                            }
+                            .build()
+                    }.toList()
+                }
+
+            }
+
+            return mediaItems
+        }
+
+        override fun onPostExecute(mediaItems: List<MediaMetadataCompat>) {
+            super.onPostExecute(mediaItems)
+            listener(mediaItems)
+        }
+
+        fun MediaMetadataCompat.Builder.from(radio: Radio): MediaMetadataCompat.Builder {
+            //     val image = track.coverUrlMiddle
+            //   val artUri = convertImageToUri(image)
+            var httpsUrl: String = ""
+
+            if (!radio.rate24AacUrl.contains("https")) {
+                httpsUrl = radio.rate24AacUrl.replaceFirst("http", "https")
+            } else {
+                httpsUrl = radio.rate24AacUrl
+            }
+
+            val durationMs = TimeUnit.SECONDS.toMillis(radio.endTime - radio.startTime)
+            id = radio.dataId.toString()
+            title = radio.radioName
+            flag = MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
+
+            artist = radio.programName
+            album = "电台"
+            duration = durationMs
+            genre = "Electronic"
+            //     mediaUri = "https://live.xmcdn.com/live/764/24.m3u8"
+            //       mediaUri = "https://live.xmcdn.com/live/1427/64.m3u8?transcode=ts"
+            mediaUri = httpsUrl
+            //    albumArtUri = artUri
+            displayTitle = radio.radioName
+            displaySubtitle = radio.programName
+            displayDescription = radio.programName
+            //  displayIconUri = artUri
+            downloadStatus = MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
+
+            return this
+        }
+
+        private fun convertImageToUri(image: String, glide: RequestManager): String {
+            val artFile = glide
+                .downloadOnly()
+                .load(image)
+                .submit(NOTIFICATION_LARGE_ICON_SIZE, NOTIFICATION_LARGE_ICON_SIZE)
+                .get()
+
+            // Expose file via Local URI
+            val artUri = artFile.asAlbumArtContentUri().toString()
+            return artUri
+        }
+
+
+    }
     private fun convertImageToUri(image: String): String {
         val artFile = glide
             .downloadOnly()
@@ -459,13 +593,14 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
             //NeuLog.e("getAlbumList(${t})")
 
             if (t != null) {
-                categoriesListTemp = t.categories
-                val category = Category()
+
+                categoriesListTemp += t.categories
+                var category = Category()
                 category.id = 0
                 category.categoryName = "热门分类"
                 category.coverUrlMiddle =
                     "https://storage.googleapis.com/uamp/The_Kyoto_Connection_-_Wake_Up/art.jpg"
-                categoriesListTemp = categoriesListTemp + category
+                categoriesListTemp += category
                 UpdateCategoryTask(glide) { mediaItems ->
                     categoriesList = mediaItems
                     //     catalog = mediaItems
