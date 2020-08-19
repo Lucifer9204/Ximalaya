@@ -2,6 +2,7 @@ package bmw.ximalaya.test.media
 
 import android.Manifest
 import android.Manifest.permission.MEDIA_CONTENT_CONTROL
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -18,6 +19,8 @@ import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.util.*
+import kotlin.collections.LinkedHashMap
 
 class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
     private val context: Context
@@ -198,7 +201,8 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         var eventType = parser.next()
         while (eventType != XmlResourceParser.END_TAG) {
             val isRelease = parser.getAttributeBooleanValue(null, "release", false)
-            val signature = parser.nextText().replace(WHITESPACE_REGEX, "").toLowerCase()
+            val signature =
+                parser.nextText().replace(WHITESPACE_REGEX, "").toLowerCase(Locale.getDefault())
             callerSignatures += KnownSignature(signature, isRelease)
 
             eventType = parser.next()
@@ -211,6 +215,7 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
             getSignature(platformInfo)
         } ?: throw IllegalStateException("Platform signature not found")
 
+    @SuppressLint("PackageManagerGetSignatures","deprecation")
     private fun getPackageInfo(callingPackage: String): PackageInfo? =
         packageManager.getPackageInfo(
             callingPackage,
