@@ -1,22 +1,6 @@
-/*
- * Copyright 2018 Google Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package bmw.ximalaya.test.media
 
-//import bmw.ximalaya.test.media.AbstractMusicSource
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
@@ -93,14 +77,6 @@ class XmlyPlaybackPreparer(
     }
 
 
-    /**
-     * This method is used by the Google Assistant to respond to requests such as:
-     * - Play Geisha from Wake Up on UAMP
-     * - Play electronic music on UAMP
-     * - Play music on UAMP
-     *
-     * For details on how search is handled, see [AbstractMusicSource.search].
-     */
     override fun onPrepareFromSearch(query: String, playWhenReady: Boolean, extras: Bundle?) {
         musicSource.whenReady {
             val metadataList = musicSource.search(query, extras ?: Bundle.EMPTY)
