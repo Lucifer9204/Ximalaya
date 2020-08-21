@@ -89,6 +89,17 @@ class XmlyPlaybackPreparer(
                 NeuLog.e("getTrackSelection"+(exoPlayer.currentTrackSelections))
                 NeuLog.e("getTrackGroup"+(exoPlayer.currentTrackGroups))
 
+                val itemToRencent: MediaMetadataCompat? = musicSource.rencentList.find { item ->
+                    item.id == mediaId
+                }
+                if (itemToRencent != null) {
+                    if (musicSource.rencentList[0].id == mediaId){
+                        return@whenReady;
+                    }
+                    musicSource.rencentList.remove(itemToRencent)
+                }
+
+                musicSource.rencentList.add(0, itemToPlay)
             }
         }
     }
