@@ -15,5 +15,14 @@ class AppDataStore {
         }
     }
 
-    class BaseUserInfo(var id: Int, var kind: String?, var nickName: String?, var avatarUrl: String?, var avatarCachedDrawable: Drawable?, var isVerified: String?, var isVip: Boolean, var vipExpiredAt: Long)
+    class BaseUserInfo(
+        var id: Int,
+        var kind: String?,
+        var nickName: String?,
+        var avatarUrl: String?,
+        var avatarCachedDrawable: Drawable?,
+        var isVerified: String?,
+        var isVip: Boolean,
+        var vipExpiredAt: Long
+    )
 }

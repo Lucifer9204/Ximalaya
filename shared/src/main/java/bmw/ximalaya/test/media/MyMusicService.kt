@@ -40,7 +40,7 @@ class MyMusicService : MediaBrowserServiceCompat() {
      */
     private val exoPlayer: ExoPlayer by lazy {
         SimpleExoPlayer.Builder(this).build().apply {
-            setAudioAttributes(AudioAttributes.DEFAULT/*xMLYAudioAttributes*/, true)
+            setAudioAttributes(AudioAttributes.DEFAULT, true)
             setHandleAudioBecomingNoisy(true)
             addListener(playerListener)
         }
@@ -58,12 +58,6 @@ class MyMusicService : MediaBrowserServiceCompat() {
     }
 
     private lateinit var packageValidator: PackageValidator
-
-    private val xMLYAudioAttributes = AudioAttributes.Builder()
-        .setContentType(C.CONTENT_TYPE_MUSIC)
-        .setUsage(C.USAGE_MEDIA)
-        .build()
-
     private val playerListener = PlayerEventListener()
 
 
@@ -174,37 +168,50 @@ class MyMusicService : MediaBrowserServiceCompat() {
 
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                if(intent?.action == "CMD_NEU_LOGOUT"){
+                if (intent?.action == "CMD_NEU_LOGOUT") {
                     NeuLog.e("CMD_NEU_LOGOUT")
                     musicSource.clearFavoriteAlbumList()
-                }else if(intent?.action == "CMD_NEU_LOGIN"){
+                } else if (intent?.action == "CMD_NEU_LOGIN") {
                     NeuLog.e("CMD_NEU_LOGIN")
                     musicSource.getAllFavoriteAlbumId(xmlyMediaFactory)
                 }
             }
         }
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(receiver, IntentFilter("CMD_NEU_LOGOUT"))
-        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(receiver, IntentFilter("CMD_NEU_LOGIN"))
+        LocalBroadcastManager.getInstance(applicationContext)
+            .registerReceiver(receiver, IntentFilter("CMD_NEU_LOGOUT"))
+        LocalBroadcastManager.getInstance(applicationContext)
+            .registerReceiver(receiver, IntentFilter("CMD_NEU_LOGIN"))
 
 
-AppDataStore.newInstance()
+        AppDataStore.newInstance()
         if (AccessTokenManager.getInstanse().hasLogin()) {
             CommonRequest.getBaseUserInfo(mutableMapOf(), object : IDataCallBack<XmBaseUserInfo> {
                 override fun onSuccess(p0: XmBaseUserInfo?) {
                     p0?.run {
-                        AppDataStore.instance?.baseUserInfo = AppDataStore.BaseUserInfo(id, kind, nickName, avatarUrl, null, isVerified, isVip, vipExpiredAt)
-                        Glide.with(this@MyMusicService).load(avatarUrl).into(object : CustomTarget<Drawable>() {
-                            override fun onLoadCleared(placeholder: Drawable?) {
-                            }
+                        AppDataStore.instance?.baseUserInfo = AppDataStore.BaseUserInfo(
+                            id,
+                            kind,
+                            nickName,
+                            avatarUrl,
+                            null,
+                            isVerified,
+                            isVip,
+                            vipExpiredAt
+                        )
+                        Glide.with(this@MyMusicService).load(avatarUrl)
+                            .into(object : CustomTarget<Drawable>() {
+                                override fun onLoadCleared(placeholder: Drawable?) {
+                                }
 
-                            override fun onResourceReady(
-                                resource: Drawable,
-                                transition: Transition<in Drawable>?
-                            ) {
-                                AppDataStore.instance?.baseUserInfo?.avatarCachedDrawable = resource
-                            }
+                                override fun onResourceReady(
+                                    resource: Drawable,
+                                    transition: Transition<in Drawable>?
+                                ) {
+                                    AppDataStore.instance?.baseUserInfo?.avatarCachedDrawable =
+                                        resource
+                                }
 
-                        })
+                            })
                     }
                 }
 
@@ -224,19 +231,12 @@ AppDataStore.newInstance()
         // ExoPlayer will manage the MediaSession for us.
         mediaSessionConnector = MediaSessionConnector(session).also { connector ->
             // Produces DataSource instances through which media data is loaded.
-            //val dataSourceFactory = DefaultDataSourceFactory(
-            //    this, Util.getUserAgent(this, XMLY_USER_AGENT), null
-            //)
-
-            val dataSourceFactory = DefaultDataSourceFactory(this, Util.getUserAgent(this, XMLY_USER_AGENT))
+            val dataSourceFactory =
+                DefaultDataSourceFactory(this, Util.getUserAgent(this, XMLY_USER_AGENT))
 
             val dataHttpSourceFactory = DefaultHttpDataSourceFactory(
                 Util.getUserAgent(this, XMLY_USER_AGENT)
             )
-
-
-//            val dataSourceFactory = DefaultExtractorsFactory()
-//            dataSourceFactory.setTsExtractorFlags(FLAG_DETECT_ACCESS_UNITS or FLAG_ALLOW_NON_IDR_KEYFRAMES)
 
             // Create the PlaybackPreparer of the media session connector.
             val playbackPreparer = XmlyPlaybackPreparer(
@@ -391,7 +391,7 @@ AppDataStore.newInstance()
                 NeuLog.e("map item")
                 MediaItem(item.description, item.flag)
             }
-            if (children?.isEmpty()!=false) {
+            if (children?.isEmpty() != false) {
                 result.sendResult(emptyList())
             } else {
                 result.sendResult(children)

@@ -40,6 +40,7 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         certificateAllowList = buildCertificateAllowList(parser)
         platformSignature = getSystemSignature()
     }
+
     fun isKnownCaller(callingPackage: String, callingUid: Int): Boolean {
         // If the caller has already been checked, return the previous result here.
         val (checkedUid, checkResult) = callerChecked[callingPackage] ?: Pair(0, false)
@@ -111,6 +112,7 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         callerChecked[callingPackage] = Pair(callingUid, isCallerKnown)
         return isCallerKnown
     }
+
     private fun logUnknownCaller(callerPackageInfo: CallerPackageInfo) {
         if (BuildConfig.DEBUG && callerPackageInfo.signature != null) {
             val formattedLog =
@@ -158,6 +160,7 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
 
         return certificateAllowList
     }
+
     private fun buildCallerInfo(callingPackage: String): CallerPackageInfo? {
         val packageInfo = getPackageInfo(callingPackage) ?: return null
 
@@ -187,9 +190,11 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         val callerSignature = KnownSignature(signature, isRelease)
         return KnownCallerInfo(name, packageName, mutableSetOf(callerSignature))
     }
+
     private fun getSignatureSha256(certificate: String): String {
         return getSignatureSha256(Base64.decode(certificate, Base64.DEFAULT))
     }
+
     /**
      * Parses a v2 format tag. See allowed_media_browser_callers.xml for more details.
      */
@@ -210,17 +215,19 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
 
         return KnownCallerInfo(name, packageName, callerSignatures)
     }
+
     private fun getSystemSignature(): String =
         getPackageInfo(ANDROID_PLATFORM)?.let { platformInfo ->
             getSignature(platformInfo)
         } ?: throw IllegalStateException("Platform signature not found")
 
-    @SuppressLint("PackageManagerGetSignatures","deprecation")
+    @SuppressLint("PackageManagerGetSignatures", "deprecation")
     private fun getPackageInfo(callingPackage: String): PackageInfo? =
         packageManager.getPackageInfo(
             callingPackage,
             PackageManager.GET_SIGNATURES or PackageManager.GET_PERMISSIONS
         )
+
     private fun getSignature(packageInfo: PackageInfo): String? =
         if (packageInfo.signatures == null || packageInfo.signatures.size != 1) {
             // Security best practices dictate that an app should be signed with exactly one (1)
@@ -236,7 +243,7 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         try {
             md = MessageDigest.getInstance("SHA256")
         } catch (noSuchAlgorithmException: NoSuchAlgorithmException) {
-            NeuLog.e( "No such algorithm: $noSuchAlgorithmException")
+            NeuLog.e("No such algorithm: $noSuchAlgorithmException")
             throw RuntimeException("Could not find SHA256 hash algorithm", noSuchAlgorithmException)
         }
         md.update(certificate)
@@ -247,6 +254,7 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         // For example: input=[0,2,4,6,8,10,12], output="00:02:04:06:08:0a:0c"
         return md.digest().joinToString(":") { String.format("%02x", it) }
     }
+
     private data class KnownCallerInfo(
         internal val name: String,
         internal val packageName: String,
@@ -257,6 +265,7 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         internal val signature: String,
         internal val release: Boolean
     )
+
     private data class CallerPackageInfo(
         internal val name: String,
         internal val packageName: String,
@@ -265,5 +274,6 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         internal val permissions: Set<String>
     )
 }
+
 private const val ANDROID_PLATFORM = "android"
 private val WHITESPACE_REGEX = "\\s|\\n".toRegex()

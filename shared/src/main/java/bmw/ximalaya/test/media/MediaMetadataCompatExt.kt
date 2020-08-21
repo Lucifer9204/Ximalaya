@@ -1,4 +1,3 @@
-
 package bmw.ximalaya.test.media
 
 import android.graphics.Bitmap
@@ -223,6 +222,7 @@ inline var MediaMetadataCompat.Builder.downloadStatus: Long
     set(value) {
         putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
     }
+
 @MediaBrowserCompat.MediaItem.Flags
 inline var MediaMetadataCompat.Builder.flag: Int
     @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
@@ -250,6 +250,7 @@ fun List<MediaMetadataCompat>.toMediaSource(
     }
     return concatenatingMediaSource
 }
+
 /**
  * Custom property for retrieving a [MediaDescriptionCompat] which also includes
  * all of the keys from the [MediaMetadataCompat] object in its extras.
