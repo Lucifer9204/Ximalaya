@@ -383,6 +383,7 @@ AppDataStore.newInstance()
     override fun onLoadChildren(parentId: String, result: Result<List<MediaItem>>) {
         // Assume for example that the music catalog is already loaded/cached.
         NeuLog.e("$parentId $result")
+        browseTree.updateRecentList()
         browseTree.updateFavoriteList()
         musicSource.currentAlbumId = parentId
         val resultsSent = musicSource.whenReady {

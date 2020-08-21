@@ -110,7 +110,7 @@ class BrowseTree(
 //                }
         //        this[TINGYU_HOME_ROOT]?.addAll(sourceList)
 
-                this[TINGYU_RECENT_ROOT]?.addAll(sourceList)
+                this[TINGYU_RECENT_ROOT]?.addAll(sourceList.rencentList)
                 updateFavoriteList()
             }
         }
@@ -140,6 +140,17 @@ class BrowseTree(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    fun updateRecentList(){
+        //TODO Need to do the sync with getAblumByUid when back startup
+        musicSource.whenReady {
+            if (it) {
+                NeuLog.e("updateRecentList")
+                this[TINGYU_RECENT_ROOT]?.clear()
+                this[TINGYU_RECENT_ROOT]?.addAll(musicSource.rencentList)
             }
         }
     }

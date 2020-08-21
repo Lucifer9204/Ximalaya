@@ -48,9 +48,9 @@ class XmlyMediaFactory(ctx: Context) {
 
         config.proxyHost = "172.30.50.10"
         config.proxyPort = 8080
-        config.connectionTimeOut = 9000
-        config.readTimeOut = 9000
-        config.writeTimeOut = 9000
+        config.connectionTimeOut = 90000
+        config.readTimeOut = 90000
+        config.writeTimeOut = 90000
         CommonRequest.getInstanse().httpConfig = config
         mXmPlayerManager.init()
 
@@ -61,7 +61,7 @@ class XmlyMediaFactory(ctx: Context) {
         val specificParams: MutableMap<String, String> = mutableMapOf(
             Pair(DTransferConstants.ALBUM_ID, albumId),
             Pair(DTransferConstants.SORT, "asc"),
-            Pair(DTransferConstants.PAGE_SIZE, "2")
+            Pair(DTransferConstants.PAGE_SIZE, "6")
         )
         val future = CompletableFuture<TrackList>()
         (CommonRequest::getTracks)(specificParams, object: IDataCallBack<TrackList>{
@@ -112,7 +112,7 @@ class XmlyMediaFactory(ctx: Context) {
             Pair(DTransferConstants.CATEGORY_ID, categoryId),
             Pair(DTransferConstants.CALC_DIMENSION, "1"),
             Pair(DTransferConstants.PAGE, "1"),
-            Pair(DTransferConstants.PAGE_SIZE, "3")
+            Pair(DTransferConstants.PAGE_SIZE, "10")
         )
         val future = CompletableFuture<AlbumList>()
         (CommonRequest::getAlbumList)(specificParams, object: IDataCallBack<AlbumList>{

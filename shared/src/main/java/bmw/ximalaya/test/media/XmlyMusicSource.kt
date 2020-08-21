@@ -41,16 +41,14 @@ private const val EXTRA_MEDIA_GENRE = MediaStore.EXTRA_MEDIA_GENRE
 class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
 
 
-    private var subscriber: Disposable? = null
     private val onReadyListeners = mutableListOf<(Boolean) -> Unit>()
     private val glide by lazy { Glide.with(ctx) }
     private var catalog: List<MediaMetadataCompat> = emptyList()
     var categoriesList: List<MediaMetadataCompat> = emptyList()
     var categoryMap: List<MutableMap<String, List<MediaMetadataCompat>>> = emptyList()
-
-    var albumBrowseMap: List<MutableMap<String, List<MediaMetadataCompat>>> = emptyList()
+    var rencentList: MutableList<MediaMetadataCompat> = java.util.ArrayList()
     var albumList: List<MediaMetadataCompat> = emptyList()
-    var albumListTemp: List<Album> = emptyList()
+    var albumListTemp: MutableList<Album> = java.util.ArrayList()
     private var categoriesListTemp: List<Category> = emptyList()
     private var curPos: Int = 0
     private var curPosCategory: Int = 0
@@ -371,7 +369,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
             else{
                 albumListTypeTemp += t.albums
             }
-            albumListTemp += t.albums
+            albumListTemp.addAll(t.albums)
             //   NeuLog.e("getTracks(${t.tracks})")
             UpdateAlbumTask(glide) { mediaItems ->
                 if (categoryId == "0") {
@@ -386,8 +384,17 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
 
                 curPosCategory++
                 if (categoriesListTemp.size <= curPosCategory) {
-                    //   state = STATE_INITIALIZED
                     curPosCategory = 0
+                    for (itemAlbum in albumList){
+                        var itemToRemove: Album? = albumListTemp.find { item ->
+                            item.id.toString() == itemAlbum.id
+                        }
+
+                        if (itemToRemove != null)
+                        {
+                            albumListTemp.remove(itemToRemove)
+                        }
+                    }
                     if (albumListTemp.isNotEmpty()) {
                         getTracksRecursion(xmlyMediaFactory, albumListTemp[0].id.toString())
                     }
@@ -594,7 +601,7 @@ class XmlyMusicSource(ctx: Context) : Iterable<MediaMetadataCompat> {
 
             if (t != null) {
 
-                categoriesListTemp += t.categories
+                categoriesListTemp += t.categories.subList(0, 16)
                 var category = Category()
                 category.id = 0
                 category.categoryName = "热门分类"
