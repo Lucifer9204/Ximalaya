@@ -21,21 +21,9 @@ class XmlyMediaFactory(ctx: Context) {
     private val mXmPlayerManager: XmPlayerManager = XmPlayerManager.getInstance(ctx)
 
     init {
-        //BMW mAppKey
-        //val mAppKey = "caab9bab1978f96b55183615c07893da"
-        //Ximalaya Demo
+
         val mAppKey = "9f9ef8f10bebeaa83e71e62f935bede8"
-//        val mAppKey = BuildConfig.APP_KEY
-      // val mAppKey = "cd20c7ad5c24ad42978f84384369d84a"
-        //BMW mPackId
-      // val mPackId = "bmw.ximalaya.test"
-        //Ximalaya Demo
         val mPackId = "com.app.test.android"
-//        val mPackId = BuildConfig.APPLICATION_ID
-     //  val mPackId = "com.neusoft.alfus.nas.extra.cloud.fm"
-        //BMW mAppSecret
-       //val mAppSecret = "f63f5bf2005278cefbbc248896e4b774"
-        //Ximalaya Demo
         val mAppSecret = "8646d66d6abe2efd14f2891f9fd1c8af"
 
         mXimalaya.setAppkey(mAppKey)
@@ -57,14 +45,19 @@ class XmlyMediaFactory(ctx: Context) {
         ConstantsOpenSdk.isDebug = true
     }
 
-    fun getTracks(albumId:String): CompletableFuture<TrackList> {
+    /**
+     * getTracks
+     * @param albumId
+     * @return TrackList
+     */
+    fun getTracks(albumId: String): CompletableFuture<TrackList> {
         val specificParams: MutableMap<String, String> = mutableMapOf(
             Pair(DTransferConstants.ALBUM_ID, albumId),
             Pair(DTransferConstants.SORT, "asc"),
             Pair(DTransferConstants.PAGE_SIZE, "6")
         )
         val future = CompletableFuture<TrackList>()
-        (CommonRequest::getTracks)(specificParams, object: IDataCallBack<TrackList>{
+        (CommonRequest::getTracks)(specificParams, object : IDataCallBack<TrackList> {
             override fun onSuccess(p0: TrackList?) {
                 future.complete(p0)
             }
@@ -75,11 +68,16 @@ class XmlyMediaFactory(ctx: Context) {
         })
         return future
     }
-    
-     fun getRadios(): CompletableFuture<RadioList> {
-        val specificParams:MutableMap<String, String> = mutableMapOf(Pair(DTransferConstants.RADIOTYPE, "3"))
+
+    /**
+     * getRadios
+     * @return RadioList
+     */
+    fun getRadios(): CompletableFuture<RadioList> {
+        val specificParams: MutableMap<String, String> =
+            mutableMapOf(Pair(DTransferConstants.RADIOTYPE, "3"))
         val future = CompletableFuture<RadioList>()
-        (CommonRequest::getRadios)(specificParams, object: IDataCallBack<RadioList>{
+        (CommonRequest::getRadios)(specificParams, object : IDataCallBack<RadioList> {
             override fun onSuccess(p0: RadioList?) {
                 future.complete(p0)
             }
@@ -91,10 +89,14 @@ class XmlyMediaFactory(ctx: Context) {
         return future
     }
 
+    /**
+     * getCategories
+     * @return CategoryList
+     */
     fun getCategories(): CompletableFuture<CategoryList> {
-        val specificParams:MutableMap<String, String> = mutableMapOf()
+        val specificParams: MutableMap<String, String> = mutableMapOf()
         val future = CompletableFuture<CategoryList>()
-        (CommonRequest::getCategories)(specificParams, object: IDataCallBack<CategoryList>{
+        (CommonRequest::getCategories)(specificParams, object : IDataCallBack<CategoryList> {
             override fun onSuccess(p0: CategoryList?) {
                 future.complete(p0)
                 NeuLog.e()
@@ -107,15 +109,21 @@ class XmlyMediaFactory(ctx: Context) {
         })
         return future
     }
+
+    /**
+     * getAlbumList
+     * @param categoryId
+     * @return AlbumList
+     */
     fun getAlbumList(categoryId: String): CompletableFuture<AlbumList> {
         val specificParams: MutableMap<String, String> = mutableMapOf(
             Pair(DTransferConstants.CATEGORY_ID, categoryId),
             Pair(DTransferConstants.CALC_DIMENSION, "1"),
             Pair(DTransferConstants.PAGE, "1"),
-            Pair(DTransferConstants.PAGE_SIZE, "10")
+            Pair(DTransferConstants.PAGE_SIZE, "8")
         )
         val future = CompletableFuture<AlbumList>()
-        (CommonRequest::getAlbumList)(specificParams, object: IDataCallBack<AlbumList>{
+        (CommonRequest::getAlbumList)(specificParams, object : IDataCallBack<AlbumList> {
             override fun onSuccess(p0: AlbumList?) {
                 future.complete(p0)
             }
@@ -127,11 +135,16 @@ class XmlyMediaFactory(ctx: Context) {
         return future
     }
 
-    fun getAlbumByUid(uid: String):CompletableFuture<SubscribeAlbumList> {
+    /**
+     * getAlbumByUid
+     * @param uid
+     * @return SubscribeAlbumList
+     */
+    fun getAlbumByUid(uid: String): CompletableFuture<SubscribeAlbumList> {
         val specificParams: MutableMap<String, String> =
             mutableMapOf(Pair(DTransferConstants.UID, uid), Pair("updated_at", "0"))
         val future = CompletableFuture<SubscribeAlbumList>()
-        (CommonRequest::getAlbumByUid)(specificParams, object: IDataCallBack<SubscribeAlbumList>{
+        (CommonRequest::getAlbumByUid)(specificParams, object : IDataCallBack<SubscribeAlbumList> {
             override fun onSuccess(p0: SubscribeAlbumList?) {
                 NeuLog.e("getAlbumByUid onSuccess)")
                 future.complete(p0)
@@ -145,19 +158,29 @@ class XmlyMediaFactory(ctx: Context) {
         return future
     }
 
-    fun addOrDelSubscribe(uid: String, addOrDel: Int, albumId: String):CompletableFuture<PostResponse> {
+    /**
+     * addOrDelSubscribe
+     * @param uid
+     * @param addOrDel
+     * @param albumId
+     * @return PostResponse
+     */
+    fun addOrDelSubscribe(
+        uid: String,
+        addOrDel: Int,
+        albumId: String
+    ): CompletableFuture<PostResponse> {
         val specificParams: MutableMap<String, String> = mutableMapOf(
             Pair(DTransferConstants.UID, uid),
             Pair(DTransferConstants.ALBUM_ID, albumId),
             Pair("operation_type", addOrDel.toString())
         )
         val future = CompletableFuture<PostResponse>()
-        (CommonRequest::AddOrDelSubscribe)(specificParams, object: IDataCallBack<PostResponse>{
+        (CommonRequest::AddOrDelSubscribe)(specificParams, object : IDataCallBack<PostResponse> {
             override fun onSuccess(p0: PostResponse?) {
                 future.complete(p0)
             }
-
-            override fun onError(p0: Int, p1: String?) {
+          override fun onError(p0: Int, p1: String?) {
                 NeuLog.e("AddOrDelSubscribe onError ${p1})")
                 future.completeExceptionally(Exception(p1))
             }
@@ -165,14 +188,14 @@ class XmlyMediaFactory(ctx: Context) {
         return future
     }
 
-    fun isSubscribe(uid: String, albumId: String):CompletableFuture<Map<String ,Boolean>> {
+    fun isSubscribe(uid: String, albumId: String): CompletableFuture<Map<String, Boolean>> {
         val specificParams: MutableMap<String, String> = mutableMapOf(
             Pair(DTransferConstants.UID, uid),
             Pair(DTransferConstants.ALBUM_ID, albumId)
         )
         val future = CompletableFuture<Map<String, Boolean>>()
-        (CommonRequest::isSubscribe)(specificParams, object: IDataCallBack<Map<String ,Boolean>>{
-            override fun onSuccess(p0: Map<String ,Boolean>?) {
+        (CommonRequest::isSubscribe)(specificParams, object : IDataCallBack<Map<String, Boolean>> {
+            override fun onSuccess(p0: Map<String, Boolean>?) {
                 future.complete(p0)
             }
 

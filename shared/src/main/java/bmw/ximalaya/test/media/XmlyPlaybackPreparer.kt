@@ -1,4 +1,3 @@
-
 package bmw.ximalaya.test.media
 
 import android.net.Uri
@@ -65,13 +64,15 @@ class XmlyPlaybackPreparer(
             } else {
                 val metadataList = buildPlaylist(itemToPlay)
                 val mediaSource: ConcatenatingMediaSource
-                if(itemToPlay.mediaUri.toString().contains(".m3u8")){
+                if (itemToPlay.mediaUri.toString().contains(".m3u8")) {
                     NeuLog.e("m3u8:${itemToPlay.mediaUri.toString()}")
                     mediaSource = ConcatenatingMediaSource()
-                    mediaSource.addMediaSource(HlsMediaSource.Factory(dataHttpSourceFactory)
-                        .setTag(itemToPlay.description)
-                        .createMediaSource(Uri.parse(itemToPlay.mediaUri.toString())))
-                }else{
+                    mediaSource.addMediaSource(
+                        HlsMediaSource.Factory(dataHttpSourceFactory)
+                            .setTag(itemToPlay.description)
+                            .createMediaSource(Uri.parse(itemToPlay.mediaUri.toString()))
+                    )
+                } else {
                     NeuLog.e("m4a:${itemToPlay.mediaUri.toString()}")
                     mediaSource = metadataList.toMediaSource(dataSourceFactory)
                 }
@@ -85,15 +86,15 @@ class XmlyPlaybackPreparer(
                 exoPlayer.seekTo(initialWindowIndex, 0)
                 exoPlayer.playWhenReady = playWhenReady
 
-                NeuLog.e("RepeatMode"+(exoPlayer.repeatMode))
-                NeuLog.e("getTrackSelection"+(exoPlayer.currentTrackSelections))
-                NeuLog.e("getTrackGroup"+(exoPlayer.currentTrackGroups))
+                NeuLog.e("RepeatMode" + (exoPlayer.repeatMode))
+                NeuLog.e("getTrackSelection" + (exoPlayer.currentTrackSelections))
+                NeuLog.e("getTrackGroup" + (exoPlayer.currentTrackGroups))
 
                 val itemToRencent: MediaMetadataCompat? = musicSource.rencentList.find { item ->
                     item.id == mediaId
                 }
                 if (itemToRencent != null) {
-                    if (musicSource.rencentList[0].id == mediaId){
+                    if (musicSource.rencentList[0].id == mediaId) {
                         return@whenReady;
                     }
                     musicSource.rencentList.remove(itemToRencent)
